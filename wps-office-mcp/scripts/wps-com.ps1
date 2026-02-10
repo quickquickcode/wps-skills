@@ -4271,6 +4271,95 @@ switch ($Action) {
         Output-Json @{ success = $true; data = @{ slideIndex = $slideIndexOut; operations = $ops } }
     }
 
+    "set3DRotation" {
+        $ppt = Get-WpsPpt
+        if ($null -eq $ppt) { Output-Json @{ success = $false; error = "WPS PPT not running" }; exit }
+        $pres = $ppt.ActivePresentation
+        $slideIndex = if ($p.slideIndex) { [int]$p.slideIndex } else { 1 }
+        $slide = $pres.Slides.Item($slideIndex)
+        $shape = $slide.Shapes.Item($(if ($p.shapeName) { $p.shapeName } elseif ($p.shapeIndex) { [int]$p.shapeIndex } else { 1 }))
+        $rotX = if ($null -ne $p.rotationX) { [double]$p.rotationX } else { 0 }
+        $rotY = if ($null -ne $p.rotationY) { [double]$p.rotationY } else { 0 }
+        $rotZ = if ($null -ne $p.rotationZ) { [double]$p.rotationZ } else { 0 }
+        if ($p.preset) {
+            $presets = @{
+                isometric   = @{ x = 45; y = 45; z = 0 }
+                perspective = @{ x = 30; y = 30; z = 0 }
+                oblique     = @{ x = 20; y = 60; z = 0 }
+                tiltLeft    = @{ x = 0;  y = -30; z = 0 }
+                tiltRight   = @{ x = 0;  y = 30; z = 0 }
+            }
+            $pr = $presets[$p.preset]
+            if ($null -ne $pr) { $rotX = $pr.x; $rotY = $pr.y; $rotZ = $pr.z }
+        }
+        $shape.ThreeD.RotationX = $rotX
+        $shape.ThreeD.RotationY = $rotY
+        $shape.ThreeD.RotationZ = $rotZ
+        Output-Json @{ success = $true; data = @{ shape = $shape.Name; rotationX = $rotX; rotationY = $rotY; rotationZ = $rotZ } }
+    }
+
+    "set3DDepth" {
+        $ppt = Get-WpsPpt
+        if ($null -eq $ppt) { Output-Json @{ success = $false; error = "WPS PPT not running" }; exit }
+        $pres = $ppt.ActivePresentation
+        $slideIndex = if ($p.slideIndex) { [int]$p.slideIndex } else { 1 }
+        $slide = $pres.Slides.Item($slideIndex)
+        $shape = $slide.Shapes.Item($(if ($p.shapeName) { $p.shapeName } elseif ($p.shapeIndex) { [int]$p.shapeIndex } else { 1 }))
+        $depth = if ($null -ne $p.depth) { [double]$p.depth } else { 20 }
+        $shape.ThreeD.Depth = $depth
+        if ($p.depthColor) {
+            $dc = Convert-HexColorToRgbInt([string]$p.depthColor)
+            if ($null -ne $dc) { $shape.ThreeD.ExtrusionColor.RGB = $dc }
+        }
+        if ($p.lighting) {
+            $lightingMap = @{ bright = 1; normal = 2; dim = 3; flat = 4 }
+            $lv = $lightingMap[$p.lighting]
+            if ($null -ne $lv) { $shape.ThreeD.PresetLighting = $lv }
+        }
+        Output-Json @{ success = $true; data = @{ shape = $shape.Name; depth = $depth } }
+    }
+
+    "set3DMaterial" {
+        $ppt = Get-WpsPpt
+        if ($null -eq $ppt) { Output-Json @{ success = $false; error = "WPS PPT not running" }; exit }
+        $pres = $ppt.ActivePresentation
+        $slideIndex = if ($p.slideIndex) { [int]$p.slideIndex } else { 1 }
+        $slide = $pres.Slides.Item($slideIndex)
+        $shape = $slide.Shapes.Item($(if ($p.shapeName) { $p.shapeName } elseif ($p.shapeIndex) { [int]$p.shapeIndex } else { 1 }))
+        $material = if ($p.material) { $p.material } else { "plastic" }
+        $materialMap = @{ matte = 1; plastic = 2; metal = 3; wireFrame = 4; glass = 5 }
+        $mv = $materialMap[$material]
+        if ($null -eq $mv) { $mv = 2 }
+        $shape.ThreeD.PresetMaterial = $mv
+        Output-Json @{ success = $true; data = @{ shape = $shape.Name; material = $material } }
+    }
+
+    "create3DText" {
+        $ppt = Get-WpsPpt
+        if ($null -eq $ppt) { Output-Json @{ success = $false; error = "WPS PPT not running" }; exit }
+        $pres = $ppt.ActivePresentation
+        $slideIndex = if ($p.slideIndex) { [int]$p.slideIndex } else { 1 }
+        $slide = $pres.Slides.Item($slideIndex)
+        $text = if ($p.text) { $p.text } else { "3D文字" }
+        $left = if ($null -ne $p.left) { $p.left } else { 200 }
+        $top = if ($null -ne $p.top) { $p.top } else { 200 }
+        $width = if ($null -ne $p.width) { $p.width } else { 300 }
+        $height = if ($null -ne $p.height) { $p.height } else { 100 }
+        $tb = $slide.Shapes.AddTextbox(1, $left, $top, $width, $height)
+        $tb.TextFrame.TextRange.Text = $text
+        $tb.TextFrame.TextRange.Font.Size = if ($p.fontSize) { $p.fontSize } else { 36 }
+        $tb.TextFrame.TextRange.Font.Bold = $true
+        if ($p.fontColor) {
+            $fc = Convert-HexColorToRgbInt([string]$p.fontColor)
+            if ($null -ne $fc) { $tb.TextFrame.TextRange.Font.Color.RGB = $fc }
+        }
+        $tb.ThreeD.Depth = if ($null -ne $p.depth) { $p.depth } else { 20 }
+        $tb.ThreeD.RotationX = if ($null -ne $p.rotationX) { $p.rotationX } else { 30 }
+        $tb.ThreeD.RotationY = if ($null -ne $p.rotationY) { $p.rotationY } else { 30 }
+        $tb.ThreeD.PresetMaterial = 2
+        Output-Json @{ success = $true; data = @{ shape = $tb.Name; text = $text } }
+    }
+
     "beautifySlide" {
         $ppt = Get-WpsPpt
         if ($null -eq $ppt) { Output-Json @{ success = $false; error = "WPS PPT not running" }; exit }

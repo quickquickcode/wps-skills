@@ -84,7 +84,7 @@ export const addSlideHandler: ToolHandler = async (
       slideIndex: number;
       layout: string;
     }>(
-      'slide.add',
+      'addSlide',
       {
         layout: layout || 'title_content',
         position,
@@ -203,7 +203,7 @@ export const beautifyHandler: ToolHandler = async (
         details?: string;
       }>;
     }>(
-      'slide.beautify',
+      'beautifySlide',
       {
         slideIndex: beautify_all ? 'all' : slide_index,
         style: {
@@ -324,7 +324,7 @@ export const unifyFontHandler: ToolHandler = async (
       count: number;
       slideCount: number;
     }>(
-      'slide.unifyFont',
+      'unifyFont',
       {
         fontName: font_name,
         slideIndex: slide_index,

@@ -7,8 +7,8 @@
 # ============================================
 docs/
 WPS接口API/
-scripts/
-logs/
+/scripts/
+/logs/
 **/README.md
 !README.md
 !README_EN.md
