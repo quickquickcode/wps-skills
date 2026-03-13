@@ -22,7 +22,23 @@ function error(message) {
     };
 }
 
+function timeout(operation) {
+    return {
+        success: false,
+        data: null,
+        error: (operation ? operation + '操作超时' : '操作超时') + '，请稍后重试'
+    };
+}
+
+function paramError(message) {
+    return {
+        success: false,
+        data: null,
+        error: '参数错误: ' + (message || '请检查输入参数')
+    };
+}
+
 // 导出
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { success, error };
+    module.exports = { success, error, timeout, paramError };
 }

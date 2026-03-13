@@ -15,7 +15,7 @@ function getActiveDocument(params) {
         var app = Application;
         var doc = app.ActiveDocument;
         if (!doc) {
-            return { success: false, error: 'No active document' };
+            return { success: false, error: '没有打开的文档' };
         }
         return {
             success: true,
@@ -40,7 +40,7 @@ function getDocumentText(params) {
         var app = Application;
         var doc = app.ActiveDocument;
         if (!doc) {
-            return { success: false, error: 'No active document' };
+            return { success: false, error: '没有打开的文档' };
         }
         var text = doc.Content.Text;
         var length = text.length;
@@ -66,7 +66,7 @@ function insertText(params) {
         var app = Application;
         var doc = app.ActiveDocument;
         if (!doc) {
-            return { success: false, error: 'No active document' };
+            return { success: false, error: '没有打开的文档' };
         }
         var text = params.text || '';
         var position = params.position || 'cursor';
@@ -99,7 +99,7 @@ function setFont(params) {
         var app = Application;
         var doc = app.ActiveDocument;
         if (!doc) {
-            return { success: false, error: 'No active document' };
+            return { success: false, error: '没有打开的文档' };
         }
         var range = (params.range === 'all') ? doc.Content : app.Selection.Range;
 
@@ -123,7 +123,7 @@ function findReplace(params) {
         var app = Application;
         var doc = app.ActiveDocument;
         if (!doc) {
-            return { success: false, error: 'No active document' };
+            return { success: false, error: '没有打开的文档' };
         }
         var find = doc.Content.Find;
         find.ClearFormatting();
@@ -160,7 +160,7 @@ function insertTable(params) {
         var app = Application;
         var doc = app.ActiveDocument;
         if (!doc) {
-            return { success: false, error: 'No active document' };
+            return { success: false, error: '没有打开的文档' };
         }
         var rows = params.rows || 3;
         var cols = params.cols || 3;

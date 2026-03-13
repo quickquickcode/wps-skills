@@ -305,23 +305,24 @@ install_mcp_server_dependencies() {
 
 # ============================================================================
 # 复制 WPS 加载项到 WPS 目录 (macOS)
-# macOS路径: ~/Library/Containers/com.kingsoft.wpsoffice.mac/Data/Documents/wps/jsaddons/
+# macOS路径: ~/Library/Containers/com.kingsoft.wpsoffice.mac/Data/.kingsoft/wps/jsaddons/
+# 注意：加载项目录名必须以 _ 结尾，这是 WPS 的约定
 # ============================================================================
 copy_wps_addon_macos() {
-    local addon_source="$PROJECT_ROOT/wps-claude-addon"
+    local addon_source="$PROJECT_ROOT/wps-claude-assistant"
 
     info "复制 WPS 加载项到 WPS 目录 (macOS)..."
 
     if [ ! -d "$addon_source" ]; then
         error "WPS 加载项源目录不存在: $addon_source"
-        echo "  你把加载项目录删了？脑子被门夹了？"
+        echo "  请确认项目文件完整性"
         return 1
     fi
 
     # WPS 加载项目标目录 (macOS)
-    # 这个路径老王查了半天WPS文档才找到的
-    local wps_addons_path="$HOME/Library/Containers/com.kingsoft.wpsoffice.mac/Data/Documents/wps/jsaddons"
-    local addon_target="$wps_addons_path/wps-claude-addon"
+    # 正确路径：Data/.kingsoft/wps/jsaddons（非 Data/Documents/wps/jsaddons）
+    local wps_addons_path="$HOME/Library/Containers/com.kingsoft.wpsoffice.mac/Data/.kingsoft/wps/jsaddons"
+    local addon_target="$wps_addons_path/claude-assistant_"
 
     # 创建目标目录（如果不存在）
     if [ ! -d "$wps_addons_path" ]; then
@@ -359,13 +360,13 @@ copy_wps_addon_macos() {
 # Linux路径: ~/.local/share/Kingsoft/wps/jsaddons/
 # ============================================================================
 copy_wps_addon_linux() {
-    local addon_source="$PROJECT_ROOT/wps-claude-addon"
+    local addon_source="$PROJECT_ROOT/wps-claude-assistant"
 
     info "复制 WPS 加载项到 WPS 目录 (Linux)..."
 
     if [ ! -d "$addon_source" ]; then
         error "WPS 加载项源目录不存在: $addon_source"
-        echo "  你把加载项目录删了？脑子被门夹了？"
+        echo "  请确认项目文件完整性"
         return 1
     fi
 
@@ -547,11 +548,44 @@ main() {
     generate_claude_config
 
     # ========== 安装完成 ==========
+    # ========== 第六步：更新 publish.xml ==========
+    update_publish_xml
+
     show_completion_message
 }
 
 # ============================================================================
+# 更新 publish.xml（macOS）
+# 注册加载项到 WPS 的插件清单中
+# ============================================================================
+update_publish_xml() {
+    if [ "$OS" != "macos" ]; then
+        return 0
+    fi
+
+    info "更新 publish.xml 配置..."
+
+    local wps_addons_path="$HOME/Library/Containers/com.kingsoft.wpsoffice.mac/Data/.kingsoft/wps/jsaddons"
+    local publish_xml="$wps_addons_path/publish.xml"
+
+    if [ ! -d "$wps_addons_path" ]; then
+        warn "WPS 加载项目录不存在，跳过 publish.xml 更新"
+        return 0
+    fi
+
+    cat > "$publish_xml" << 'XMLEOF'
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<jsplugins>
+  <jsplugin name="claude-assistant" type="wps,et,wpp" url="claude-assistant_/" enable="enable_dev"/>
+</jsplugins>
+XMLEOF
+
+    success "publish.xml 配置完成"
+    return 0
+}
+
+# ============================================================================
 # 脚本入口
-# 开始执行安装，出了问题别找老子（开玩笑的，有问题提Issue）
+# 开始执行安装，出了问题提Issue
 # ============================================================================
 main "$@"

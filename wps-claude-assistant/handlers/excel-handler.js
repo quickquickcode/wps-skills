@@ -18,7 +18,7 @@ function getActiveWorkbook(params) {
     try {
         var app = Application;
         var wb = app.ActiveWorkbook;
-        if (!wb) return { success: false, error: "No active workbook" };
+        if (!wb) return { success: false, error: '没有打开的工作簿' };
 
         var sheets = [];
         for (var i = 1; i <= wb.Sheets.Count; i++) {
@@ -37,7 +37,7 @@ function getActiveWorkbook(params) {
 function getCellValue(params) {
     try {
         var wb = Application.ActiveWorkbook;
-        if (!wb) return { success: false, error: "No active workbook" };
+        if (!wb) return { success: false, error: '没有打开的工作簿' };
 
         var sheet = getSheet(wb, params.sheet);
         var cell = sheet.Cells.Item(params.row, params.col);
@@ -54,7 +54,7 @@ function getCellValue(params) {
 function setCellValue(params) {
     try {
         var wb = Application.ActiveWorkbook;
-        if (!wb) return { success: false, error: "No active workbook" };
+        if (!wb) return { success: false, error: '没有打开的工作簿' };
 
         var sheet = getSheet(wb, params.sheet);
         sheet.Cells.Item(params.row, params.col).Value2 = params.value;
@@ -68,7 +68,7 @@ function setCellValue(params) {
 function getRangeData(params) {
     try {
         var wb = Application.ActiveWorkbook;
-        if (!wb) return { success: false, error: "No active workbook" };
+        if (!wb) return { success: false, error: '没有打开的工作簿' };
 
         var sheet = getSheet(wb, params.sheet);
         var range = sheet.Range(params.range);
@@ -90,7 +90,7 @@ function getRangeData(params) {
 function setRangeData(params) {
     try {
         var wb = Application.ActiveWorkbook;
-        if (!wb) return { success: false, error: "No active workbook" };
+        if (!wb) return { success: false, error: '没有打开的工作簿' };
 
         var sheet = getSheet(wb, params.sheet);
         var range = sheet.Range(params.range);
@@ -109,7 +109,7 @@ function setRangeData(params) {
 function setFormula(params) {
     try {
         var wb = Application.ActiveWorkbook;
-        if (!wb) return { success: false, error: "No active workbook" };
+        if (!wb) return { success: false, error: '没有打开的工作簿' };
 
         var sheet = getSheet(wb, params.sheet);
         sheet.Cells.Item(params.row, params.col).Formula = params.formula;
@@ -124,7 +124,7 @@ function getExcelContext(params) {
     try {
         var app = Application;
         var wb = app.ActiveWorkbook;
-        if (!wb) return { success: false, error: "No active workbook" };
+        if (!wb) return { success: false, error: '没有打开的工作簿' };
 
         var sheet = app.ActiveSheet;
         var usedRange = sheet.UsedRange;

@@ -54,7 +54,7 @@ function getActivePresentation(params) {
             }
         };
     } catch (e) {
-        return { success: false, error: 'getActivePresentation失败: ' + e.message };
+        return { success: false, error: '获取演示文稿信息失败: ' + e.message };
     }
 }
 
@@ -82,7 +82,7 @@ function addSlide(params) {
 
         return { success: true, data: { slideIndex: position } };
     } catch (e) {
-        return { success: false, error: 'addSlide失败: ' + e.message };
+        return { success: false, error: '添加幻灯片失败: ' + e.message };
     }
 }
 
@@ -119,7 +119,7 @@ function addTextBox(params) {
 
         return { success: true, data: { shapeName: shape.Name } };
     } catch (e) {
-        return { success: false, error: 'addTextBox失败: ' + e.message };
+        return { success: false, error: '添加文本框失败: ' + e.message };
     }
 }
 
@@ -142,7 +142,7 @@ function setSlideTitle(params) {
 
         return { success: true, data: {} };
     } catch (e) {
-        return { success: false, error: 'setSlideTitle失败: ' + e.message };
+        return { success: false, error: '设置幻灯片标题失败: ' + e.message };
     }
 }
 
@@ -176,7 +176,7 @@ function unifyFont(params) {
 
         return { success: true, data: { fontName: fontName, count: count } };
     } catch (e) {
-        return { success: false, error: 'unifyFont失败: ' + e.message };
+        return { success: false, error: '统一字体失败: ' + e.message };
     }
 }
 
@@ -216,7 +216,7 @@ function beautifySlide(params) {
 
         return { success: true, data: { style: params.style || 'business', count: count } };
     } catch (e) {
-        return { success: false, error: 'beautifySlide失败: ' + e.message };
+        return { success: false, error: '美化幻灯片失败: ' + e.message };
     }
 }
 

@@ -80,6 +80,7 @@ function poll() {
         };
 
         xhr.ontimeout = function() {
+            console.log('轮询超时 (' + xhr.timeout + 'ms)，将重新尝试');
             scheduleNextPoll();
         };
 
@@ -912,7 +913,7 @@ function handleCommand(cmd) {
                 result = { success: false, error: '未知命令: ' + cmd.action };
         }
     } catch (e) {
-        result = { success: false, error: e.message || String(e) };
+        result = { success: false, error: '命令执行异常: ' + (e.message || String(e)) };
     }
 
     sendResult(cmd.requestId, result);
