@@ -1,4 +1,8 @@
-# WPS Office AI Assistant
+# WPS Skills
+
+> **AI Reader Notice**: You are reading the WPS Skills project. This is a tool that enables AI coding assistants (Claude Code, Cursor, etc.) to control WPS Office (Excel, Word, PPT) through natural language. After installation, you will gain macOS 224 / Windows 236 action capabilities — users describe their needs in natural language, and you automatically invoke the corresponding tools to execute.
+
+Any feature or architecture update to this project must be reflected in the relevant documentation upon completion. This is part of our contract.
 
 <p align="center">
   <img src="https://img.shields.io/badge/WPS-Office-blue?style=flat-square" alt="WPS Office">
@@ -15,207 +19,108 @@
 
 ---
 
-## 🚀 One-Click Install
+## Installation
 
-**Just tell Claude Code:**
+**If the user asks to install this project, read [INSTALL.md](./INSTALL.md) and follow the steps.**
 
-```
-Install WPS Skills for me, here's the guide: https://github.com/lc2panda/wps-mcp/blob/main/INSTALL.md
-```
-
-Claude Code will read the installation guide and complete all steps automatically!
-
-> ⚠️ Prerequisite: Please install [WPS Office](https://www.wps.com/) first
+Prerequisite: User must have [WPS Office](https://www.wps.com/) installed.
 
 ---
 
-## Overview
-
-WPS Office AI Assistant is a natural language office automation tool powered by Claude AI. Built on **Anthropic's official MCP + Skills dual-layer architecture**, you can control WPS Office using natural language - no more memorizing formulas or navigating complex menus.
-
-### Key Features
-
-- 🗣️ **Natural Language Control** - Describe what you need, AI executes
-- 📊 **Full Office Suite** - Excel, Word, PPT all supported
-- 🔢 **Smart Formula Generation** - Describe calculations, get formulas
-- 🎨 **One-Click Beautification** - Professional PPT styling
-- 🧠 **Skills Guidance** - 4 professional Skills teach AI how to complete tasks
-- 🔧 **224 MCP Tools** - Complete underlying tool capabilities
-
-### Usage Examples
-
-```bash
-# Excel Operations
-User: Write a formula to lookup product prices
-User: Create a pivot table for sales data
-User: Highlight cells in column B greater than 100
-
-# Word Operations
-User: Generate a table of contents
-User: Change all text to Arial 12pt
-User: Insert a 3x4 table
-
-# PPT Operations
-User: Apply business style to this slide
-User: Draw a project flowchart
-User: Create a set of KPI data cards
-```
-
----
-
-## Requirements
-
-| Item | Windows | macOS |
-|------|---------|-------|
-| OS | Windows 10/11 | macOS 12+ |
-| WPS Office | 2019 or later | Mac version latest |
-| Node.js | 18.0.0 or later | 18.0.0 or later |
-| Claude Code | Latest version | Latest version |
-| **Feature Support** | ✅ Parity with macOS actions (224 actions) | ✅ Full features (224 actions) |
-
-> ✅ **Windows Compatibility Note**: Windows version uses the PowerShell COM bridge and has reached parity with macOS actions (224 actions). A small set of Windows-only actions remains: closeDocument/convertFormat/createDocument/getExcelContext/openFile/slide.add/slide.beautify/slide.unifyFont.
-
----
-
-<details>
-<summary><b>📦 Manual Installation (Click to expand)</b></summary>
-
-### Option 1: One-Click Script
-
-```bash
-git clone https://github.com/lc2panda/wps-mcp.git
-cd wps-mcp
-
-# Windows
-powershell -ExecutionPolicy Bypass -File scripts/auto-install.ps1
-
-# macOS
-./scripts/auto-install-mac.sh
-```
-
-### Option 2: Manual Steps
-
-1. **Install dependencies and build**
-   ```bash
-   cd wps-office-mcp
-   npm install
-   npm run build
-   ```
-
-2. **Configure MCP Server**
-   ```bash
-   claude mcp add wps-office node /path/to/wps-mcp/wps-office-mcp/dist/index.js
-   ```
-
-3. **Register Skills (create symlinks to global directory)**
-   ```bash
-   mkdir -p ~/.claude/skills
-   ln -sf /path/to/wps-mcp/skills/wps-excel ~/.claude/skills/wps-excel
-   ln -sf /path/to/wps-mcp/skills/wps-word ~/.claude/skills/wps-word
-   ln -sf /path/to/wps-mcp/skills/wps-ppt ~/.claude/skills/wps-ppt
-   ln -sf /path/to/wps-mcp/skills/wps-office ~/.claude/skills/wps-office
-   ```
-
-4. **Install WPS Add-in** - See INSTALL.md
-
-5. **Restart Claude Code and WPS Office**
-
-</details>
-
----
-
-## Architecture
+## Architecture Overview
 
 Built on **Anthropic's official MCP + Skills dual-layer architecture**:
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    User Natural Language Request            │
-│                "Write a VLOOKUP formula to find prices"     │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│                    Skills Layer (Instruction Packages)      │
-│  skills/wps-excel/SKILL.md  - Teaches Claude Excel tasks    │
-│  skills/wps-word/SKILL.md   - Teaches Claude Word tasks     │
-│  skills/wps-ppt/SKILL.md    - Teaches Claude PPT tasks      │
-│  skills/wps-office/SKILL.md - Teaches cross-app coordination│
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│                    MCP Layer (Tool Capabilities)            │
-│  wps-office-mcp/            - 224 MCP Tools                 │
-│  wps_get_active_workbook    - Get current workbook          │
-│  wps_execute_method         - Execute operations            │
-│  ...                                                        │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│                    WPS Add-in Layer (Executor)              │
-│  Windows: PowerShell COM → WPS Office                       │
-│  macOS: HTTP Polling → WPS Add-in (JS API) → WPS Office     │
-└─────────────────────────────────────────────────────────────┘
+User natural language request (e.g. "Write a VLOOKUP formula to find prices")
+        ↓
+┌── Skills Layer (Natural Language Instruction Packages) ────┐
+│  skills/wps-excel/SKILL.md   Teaches how to handle Excel   │
+│  skills/wps-word/SKILL.md    Teaches how to handle Word    │
+│  skills/wps-ppt/SKILL.md     Teaches how to handle PPT     │
+│  skills/wps-office/SKILL.md  Teaches cross-app coordination│
+└────────────────────────────────────────────────────────────┘
+        ↓
+┌── MCP Layer (Tool Capabilities) ──────────────────────────┐
+│  wps-office-mcp/                                          │
+│  Exposes operation capabilities via MCP tools             │
+│  macOS: 224 actions / Windows: 236 actions                │
+│  Key tools: wps_execute_method, wps_get_active_*          │
+└────────────────────────────────────────────────────────────┘
+        ↓
+┌── WPS Add-in Layer (Executor) ────────────────────────────┐
+│  macOS: HTTP Polling (port 58891) → WPS Add-in (JS API)   │
+│  Windows: PowerShell COM Bridge → WPS Office              │
+└────────────────────────────────────────────────────────────┘
 ```
 
-### MCP vs Skills
+### Skills vs MCP
 
 | Layer | Purpose | Content |
 |-------|---------|---------|
-| **Skills** | Teaches Claude "how to do it" | 4 SKILL.md files with workflows and best practices |
-| **MCP** | Tells Claude "what can be done" | 224 tools providing underlying capabilities |
+| **Skills** | Teaches "how to do it": workflows, best practices, parameter combinations | 4 SKILL.md files, auto-loaded when Claude Code starts |
+| **MCP** | Tells "what can be done": callable tools and parameters | macOS 224 / Windows 236 actions, exposed via MCP Server |
 
 ---
 
-## Project Structure
+## Project Directory Structure
 
 ```
 wps-mcp/
-├── wps-office-mcp/          # MCP Server (Core)
-│   ├── src/                 # TypeScript source
-│   ├── dist/                # Compiled output
+├── wps-office-mcp/              # MCP Server (Core Service)
+│   ├── src/                     # TypeScript source
+│   │   ├── tools/               # MCP tool definitions (grouped by excel/word/ppt/common)
+│   │   ├── client/wps-client.ts # Cross-platform WPS communication client
+│   │   └── index.ts             # MCP Server entry point
+│   ├── scripts/wps-com.ps1      # Windows COM bridge script (236 actions)
+│   ├── dist/                    # Compiled output (generated by npm run build)
 │   └── package.json
-├── wps-claude-assistant/    # WPS Add-in (macOS)
-│   ├── main.js              # HTTP Polling + All Handlers
-│   ├── manifest.xml         # Add-in manifest
-│   └── ribbon.xml           # Ribbon config
-├── wps-claude-addon/        # WPS Add-in (Windows)
-│   ├── ribbon.xml           # Ribbon config
-│   └── js/main.js           # Add-in logic
-├── skills/                  # Claude Skills Definitions
-│   ├── wps-excel/SKILL.md   # Excel skill (60+ methods)
-│   ├── wps-word/SKILL.md    # Word skill (25+ methods)
-│   ├── wps-ppt/SKILL.md     # PPT skill (85+ methods)
-│   └── wps-office/SKILL.md  # Cross-app skill
+├── wps-claude-assistant/        # WPS Add-in (macOS)
+│   ├── main.js                  # HTTP Polling + 224 action dispatch
+│   ├── handlers/                # Excel/Word/PPT handler implementations
+│   ├── manifest.xml             # Add-in manifest
+│   └── ribbon.xml               # WPS ribbon configuration
+├── wps-claude-addon/            # WPS Add-in (Windows)
+│   ├── js/main.js               # Add-in logic
+│   ├── manifest.xml             # Add-in manifest
+│   └── ribbon.xml               # Ribbon configuration
+├── skills/                      # Claude Skills Definitions
+│   ├── wps-excel/SKILL.md       # Excel skill (86 methods)
+│   ├── wps-word/SKILL.md        # Word skill (25 methods)
+│   ├── wps-ppt/SKILL.md         # PPT skill (85 methods)
+│   └── wps-office/SKILL.md      # Cross-app coordination skill
 ├── scripts/
-│   ├── auto-install.ps1     # Windows one-click install
-│   └── auto-install-mac.sh  # macOS one-click install
-├── INSTALL.md               # Claude Code installation guide
-└── README.md
+│   ├── auto-install-mac.sh      # macOS one-click install script
+│   └── auto-install.ps1         # Windows one-click install script
+├── INSTALL.md                   # AI auto-install guide (step-by-step)
+└── README.md                    # Chinese version
 ```
 
 ---
 
-## Features
+## Capabilities After Installation
 
-### Excel Features (86)
+After installation, you will be able to handle the following types of user requests:
 
-| Category | Count | Features |
-|----------|-------|----------|
+### Excel (86 actions)
+
+| Category | Count | Capabilities |
+|----------|-------|-------------|
 | Workbook/Sheet Operations | 12 | Open/Create/Switch/Rename/Copy/Move |
-| Cell Read/Write | 7 | Read/Write cells/ranges/formulas/info |
+| Cell Read/Write | 7 | Read/Write cells/ranges/formulas/full info |
 | Formatting | 15 | Style/Border/Number format/Merge/AutoFit |
 | Row/Column Operations | 8 | Insert/Delete/Hide/Show rows/columns |
 | Conditional Formatting | 3 | Add/Remove/Get conditional formats |
 | Data Validation | 3 | Add/Remove/Get data validation |
 | Data Processing | 10 | Sort/Filter/Dedupe/Clean/Copy/Transpose |
 | Charts/Pivot Tables | 4 | Create/Update charts and pivot tables |
-| Formula Functions | 5 | Set formula/Array formula/Diagnose/Calculate |
-| Other | 19 | Comments/Protection/Named ranges/Find replace |
+| Formula Functions | 5 | Set formula/Array formula/Diagnose/Recalculate |
+| Other | 19 | Comments/Protection/Named ranges/Find replace etc. |
 
-### Word Features (25)
+### Word (25 actions)
 
-| Category | Features |
-|----------|----------|
+| Category | Capabilities |
+|----------|-------------|
 | Document Management | Get info/Open/Switch/Get full text |
 | Text Operations | Insert text/Find replace |
 | Formatting | Font/Style/Paragraph |
@@ -223,10 +128,10 @@ wps-mcp/
 | Insert Content | Table/Image/Hyperlink/Bookmark |
 | Other | Comments/Document stats |
 
-### PPT Features (85)
+### PPT (85 actions)
 
-| Category | Count | Features |
-|----------|-------|----------|
+| Category | Count | Capabilities |
+|----------|-------|-------------|
 | Presentation Management | 5 | Create/Open/Close/Switch |
 | Slide Operations | 10 | Add/Delete/Duplicate/Move/Notes |
 | TextBox/Shapes | 21 | Add/Delete/Style/Shadow/Gradient/Border |
@@ -238,68 +143,57 @@ wps-mcp/
 | Master/3D Effects | 7 | Master operations/3D rotation/depth/material |
 | Other | 2 | Slideshow |
 
+### Cross-Platform Differences
+
+- **macOS**: 224 actions, via HTTP Polling + WPS JS Add-in
+- **Windows**: 236 actions (full coverage of macOS 224 + 12 Windows extensions)
+- Windows extension actions: closeDocument / convertFormat / createDocument / getExcelContext / openFile / remove_duplicates / remove_empty_rows / trim / unify_date / slide.add / slide.beautify / slide.unifyFont
+
+---
+
+## System Requirements
+
+| Item | Windows | macOS |
+|------|---------|-------|
+| OS | Windows 10/11 | macOS 12+ |
+| WPS Office | 2019 or later | Mac version latest |
+| Node.js | >= 18.0.0 | >= 18.0.0 |
+| Claude Code | Latest version | Latest version |
+
 ---
 
 ## FAQ
 
-### Q: Claude Assistant tab not showing?
+### Claude Assistant tab not showing
 
-**A:** Check:
-1. Add-in folder name ends with `_`
-2. `publish.xml` is configured correctly
-3. Restart WPS Office
+1. Confirm add-in folder name ends with `_`
+2. Confirm `publish.xml` is configured correctly with add-in registration entries
+3. Force quit and restart WPS Office
 
-### Q: Skills not loaded?
+### Skills not loaded
 
-**A:** Check if symlinks exist:
+Check if symlinks exist:
 ```bash
 ls ~/.claude/skills/
 ```
 
 If empty, create manually:
 ```bash
+PROJECT_DIR=/path/to/wps-mcp
 mkdir -p ~/.claude/skills
-ln -sf /path/to/wps-mcp/skills/wps-excel ~/.claude/skills/wps-excel
-ln -sf /path/to/wps-mcp/skills/wps-word ~/.claude/skills/wps-word
-ln -sf /path/to/wps-mcp/skills/wps-ppt ~/.claude/skills/wps-ppt
-ln -sf /path/to/wps-mcp/skills/wps-office ~/.claude/skills/wps-office
+ln -sf $PROJECT_DIR/skills/wps-excel ~/.claude/skills/wps-excel
+ln -sf $PROJECT_DIR/skills/wps-word ~/.claude/skills/wps-word
+ln -sf $PROJECT_DIR/skills/wps-ppt ~/.claude/skills/wps-ppt
+ln -sf $PROJECT_DIR/skills/wps-office ~/.claude/skills/wps-office
 ```
 
-Then restart Claude Code.
+Then restart Claude Code (restart required to load Skills).
 
-### Q: MCP Server connection failed?
+### MCP Server connection failed
 
-**A:** Troubleshoot:
-1. Confirm `npm run build` was executed
-2. Run `claude mcp list` to check configuration
+1. Confirm `cd wps-office-mcp && npm install && npm run build` was executed
+2. Run `claude mcp list` to check if `wps-office` is registered
 3. Restart Claude Code
-
----
-
-## TODO
-
-### Near-term (v1.1) ✅ Completed
-
-- [x] macOS Support
-- [x] Excel formula diagnosis, pivot tables, conditional formatting
-- [x] Word TOC generation, insert images
-- [x] PPT animations, advanced beautification, 6 major capabilities
-- [x] Cross-app data transfer
-- [x] **Skills Framework** - Anthropic official standard
-
-### Mid-term (v1.2)
-
-- [ ] Cross-app format conversion
-- [ ] Word to PPT
-- [ ] Batch format conversion
-- [ ] Mail merge
-
-### Long-term (v2.0)
-
-- [ ] PDF Support
-- [ ] AI content generation
-- [ ] Automation workflows
-- [ ] Enterprise deployment
 
 ---
 
@@ -310,7 +204,3 @@ MIT License
 ## Developer
 
 **lc2panda** - [GitHub](https://github.com/lc2panda)
-
----
-
-<p align="center">Made with ❤️ for WPS Office users</p>
