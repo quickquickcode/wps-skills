@@ -14,6 +14,8 @@
  * - wps_word_insert_footer: 插入页脚
  * - wps_word_get_active_document: 获取当前文档信息
  * - wps_word_insert_page_break: 插入分页符
+ * - wps_word_insert_comment: 插入批注
+ * - wps_word_set_text_color: 设置文字颜色
  */
 
 import { v4 as uuidv4 } from 'uuid';
@@ -579,6 +581,84 @@ export const setFontHandler: ToolHandler = async (
   }
 };
 
+/**
+ * 插入批注到文档选中内容
+ */
+export const insertCommentDefinition: ToolDefinition = {
+  name: 'wps_word_insert_comment',
+  description: '在Word文档选中内容处插入批注',
+  category: ToolCategory.DOCUMENT,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      text: { type: 'string', description: '批注内容' },
+    },
+    required: ['text'],
+  },
+};
+
+export const insertCommentHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { text } = args as { text: string };
+  if (!text || text.trim() === '') {
+    return { id: uuidv4(), success: false, content: [{ type: 'text', text: '批注内容不能为空！' }], error: '批注内容为空' };
+  }
+  try {
+    const response = await wpsClient.executeMethod<{ success: boolean; message: string }>(
+      'insertComment',
+      { text },
+      WpsAppType.WRITER
+    );
+    return {
+      id: uuidv4(),
+      success: response.success,
+      content: [{ type: 'text', text: response.success ? '批注已插入' : (response.data as any)?.message || '插入失败' }],
+    };
+  } catch (e: any) {
+    return { id: uuidv4(), success: false, content: [{ type: 'text', text: `插入批注出错: ${e.message}` }], error: e.message };
+  }
+};
+
+/**
+ * 设置选中文字的颜色
+ */
+export const setTextColorDefinition: ToolDefinition = {
+  name: 'wps_word_set_text_color',
+  description: '设置Word文档中选中文字的颜色',
+  category: ToolCategory.DOCUMENT,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      color: { type: 'string', description: '颜色值，如 "#FF0000"、"red"' },
+    },
+    required: ['color'],
+  },
+};
+
+export const setTextColorHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { color } = args as { color: string };
+  if (!color || color.trim() === '') {
+    return { id: uuidv4(), success: false, content: [{ type: 'text', text: '颜色值不能为空！' }], error: '颜色值为空' };
+  }
+  try {
+    const response = await wpsClient.executeMethod<{ success: boolean; message: string }>(
+      'setTextColor',
+      { color },
+      WpsAppType.WRITER
+    );
+    return {
+      id: uuidv4(),
+      success: response.success,
+      content: [{ type: 'text', text: response.success ? `文字颜色已设置为 ${color}` : (response.data as any)?.message || '设置失败' }],
+    };
+  } catch (e: any) {
+    return { id: uuidv4(), success: false, content: [{ type: 'text', text: `设置文字颜色出错: ${e.message}` }], error: e.message };
+  }
+};
+
 export const contentTools: RegisteredTool[] = [
   { definition: insertTextDefinition, handler: insertTextHandler },
   { definition: findReplaceDefinition, handler: findReplaceHandler },
@@ -588,6 +668,8 @@ export const contentTools: RegisteredTool[] = [
   { definition: insertImageDefinition, handler: insertImageHandler },
   { definition: insertPageBreakDefinition, handler: insertPageBreakHandler },
   { definition: setFontDefinition, handler: setFontHandler },
+  { definition: insertCommentDefinition, handler: insertCommentHandler },
+  { definition: setTextColorDefinition, handler: setTextColorHandler },
 ];
 
 export default contentTools;
