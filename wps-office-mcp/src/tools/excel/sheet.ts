@@ -17,6 +17,9 @@
  * - wps_excel_delete_row: 删除指定行
  * - wps_excel_insert_column: 插入列
  * - wps_excel_delete_column: 删除指定列
+ * - wps_excel_freeze_panes: 冻结/取消冻结窗格
+ * - wps_excel_auto_fill: 自动填充单元格区域
+ * - wps_excel_set_named_range: 设置命名范围
  */
 
 import { v4 as uuidv4 } from 'uuid';
@@ -771,6 +774,222 @@ export const deleteColumnHandler: ToolHandler = async (
 };
 
 /**
+ * 冻结/取消冻结窗格
+ */
+export const freezePanesDefinition: ToolDefinition = {
+  name: 'wps_excel_freeze_panes',
+  description: '冻结/取消冻结窗格。可指定冻结的行和列位置。',
+  category: ToolCategory.SPREADSHEET,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      row: {
+        type: 'number',
+        description: '冻结到第几行（从1开始），不填则不冻结行',
+      },
+      column: {
+        type: 'number',
+        description: '冻结到第几列（从1开始），不填则不冻结列',
+      },
+      freeze: {
+        type: 'boolean',
+        description: '是否冻结，默认true。设为false则取消冻结',
+      },
+    },
+  },
+};
+
+export const freezePanesHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { row, column, freeze = true } = args as {
+    row?: number;
+    column?: number;
+    freeze?: boolean;
+  };
+
+  try {
+    const response = await wpsClient.executeMethod<{
+      frozen: boolean;
+    }>(
+      'freezePanes',
+      { row, column, freeze },
+      WpsAppType.SPREADSHEET
+    );
+
+    if (!response.success) {
+      return {
+        id: uuidv4(),
+        success: false,
+        content: [{ type: 'text', text: `冻结窗格操作失败: ${response.error}` }],
+        error: response.error,
+      };
+    }
+
+    const action = freeze ? '冻结' : '取消冻结';
+    return {
+      id: uuidv4(),
+      success: true,
+      content: [
+        {
+          type: 'text',
+          text: `窗格${action}成功！${row ? `\n冻结行: ${row}` : ''}${column ? `\n冻结列: ${column}` : ''}`,
+        },
+      ],
+    };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `冻结窗格操作出错: ${errMsg}` }],
+      error: errMsg,
+    };
+  }
+};
+
+/**
+ * 自动填充单元格区域
+ */
+export const autoFillDefinition: ToolDefinition = {
+  name: 'wps_excel_auto_fill',
+  description: '自动填充单元格区域。根据源区域的数据模式自动填充到目标区域。',
+  category: ToolCategory.SPREADSHEET,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      sourceRange: {
+        type: 'string',
+        description: '源数据区域，如 "A1:A5"',
+      },
+      targetRange: {
+        type: 'string',
+        description: '目标填充区域，如 "A1:A20"',
+      },
+    },
+    required: ['sourceRange', 'targetRange'],
+  },
+};
+
+export const autoFillHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { sourceRange, targetRange } = args as {
+    sourceRange: string;
+    targetRange: string;
+  };
+
+  try {
+    const response = await wpsClient.executeMethod<{
+      filled: boolean;
+    }>(
+      'autoFill',
+      { sourceRange, targetRange },
+      WpsAppType.SPREADSHEET
+    );
+
+    if (!response.success) {
+      return {
+        id: uuidv4(),
+        success: false,
+        content: [{ type: 'text', text: `自动填充失败: ${response.error}` }],
+        error: response.error,
+      };
+    }
+
+    return {
+      id: uuidv4(),
+      success: true,
+      content: [
+        {
+          type: 'text',
+          text: `自动填充成功！\n源区域: ${sourceRange}\n目标区域: ${targetRange}`,
+        },
+      ],
+    };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `自动填充出错: ${errMsg}` }],
+      error: errMsg,
+    };
+  }
+};
+
+/**
+ * 设置命名范围
+ */
+export const setNamedRangeDefinition: ToolDefinition = {
+  name: 'wps_excel_set_named_range',
+  description: '设置命名范围。为指定单元格区域创建或更新命名范围。',
+  category: ToolCategory.SPREADSHEET,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      name: {
+        type: 'string',
+        description: '命名范围的名称',
+      },
+      range: {
+        type: 'string',
+        description: '单元格区域，如 "A1:D10"',
+      },
+    },
+    required: ['name', 'range'],
+  },
+};
+
+export const setNamedRangeHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { name, range } = args as {
+    name: string;
+    range: string;
+  };
+
+  try {
+    const response = await wpsClient.executeMethod<{
+      name: string;
+      range: string;
+    }>(
+      'setNamedRange',
+      { name, range },
+      WpsAppType.SPREADSHEET
+    );
+
+    if (!response.success) {
+      return {
+        id: uuidv4(),
+        success: false,
+        content: [{ type: 'text', text: `设置命名范围失败: ${response.error}` }],
+        error: response.error,
+      };
+    }
+
+    return {
+      id: uuidv4(),
+      success: true,
+      content: [
+        {
+          type: 'text',
+          text: `命名范围设置成功！\n名称: ${name}\n范围: ${range}`,
+        },
+      ],
+    };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `设置命名范围出错: ${errMsg}` }],
+      error: errMsg,
+    };
+  }
+};
+
+/**
  * 导出所有工作表管理相关的Tools
  */
 export const sheetTools: RegisteredTool[] = [
@@ -785,6 +1004,9 @@ export const sheetTools: RegisteredTool[] = [
   { definition: deleteRowDefinition, handler: deleteRowHandler },
   { definition: insertColumnDefinition, handler: insertColumnHandler },
   { definition: deleteColumnDefinition, handler: deleteColumnHandler },
+  { definition: freezePanesDefinition, handler: freezePanesHandler },
+  { definition: autoFillDefinition, handler: autoFillHandler },
+  { definition: setNamedRangeDefinition, handler: setNamedRangeHandler },
 ];
 
 export default sheetTools;
