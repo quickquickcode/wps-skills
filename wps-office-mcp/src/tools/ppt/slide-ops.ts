@@ -15,6 +15,12 @@
  * - wps_ppt_set_slide_layout: 设置幻灯片版式布局
  * - wps_ppt_get_slide_notes: 获取幻灯片备注内容
  * - wps_ppt_set_slide_notes: 设置幻灯片备注
+ * - wps_ppt_add_shape: 添加形状
+ * - wps_ppt_set_shape_style: 设置形状样式
+ * - wps_ppt_add_textbox: 添加文本框
+ * - wps_ppt_set_slide_title: 设置幻灯片标题
+ * - wps_ppt_insert_image: 插入图片
+ * - wps_ppt_set_shape_text: 设置形状文字
  */
 
 import { v4 as uuidv4 } from 'uuid';
@@ -717,6 +723,623 @@ export const setSlideNotesHandler: ToolHandler = async (
 };
 
 // ============================================================
+// 10. wps_ppt_add_shape - 添加形状
+// ============================================================
+
+export const addShapeDefinition: ToolDefinition = {
+  name: 'wps_ppt_add_shape',
+  description: `在幻灯片中添加形状。
+
+支持的形状类型：
+- rectangle: 矩形
+- oval: 椭圆
+- triangle: 三角形
+- diamond: 菱形
+- pentagon: 五边形
+- hexagon: 六边形
+- arrow: 箭头
+- star: 星形
+- heart: 心形
+- cloud: 云形
+
+使用场景：
+- "在第1页添加一个矩形"
+- "插入一个蓝色的圆形"
+- "添加一个带文字的箭头"`,
+  category: ToolCategory.PRESENTATION,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      slideIndex: {
+        type: 'number',
+        description: '幻灯片索引（从1开始），默认1',
+      },
+      type: {
+        type: 'string',
+        description: '形状类型',
+        enum: ['rectangle', 'oval', 'triangle', 'diamond', 'pentagon', 'hexagon', 'arrow', 'star', 'heart', 'cloud'],
+      },
+      left: {
+        type: 'number',
+        description: '左边距（像素），默认100',
+      },
+      top: {
+        type: 'number',
+        description: '上边距（像素），默认100',
+      },
+      width: {
+        type: 'number',
+        description: '宽度（像素），默认100',
+      },
+      height: {
+        type: 'number',
+        description: '高度（像素），默认100',
+      },
+      text: {
+        type: 'string',
+        description: '形状内的文本',
+      },
+      fillColor: {
+        type: 'string',
+        description: '填充颜色，十六进制如 #FF0000',
+      },
+    },
+    required: [],
+  },
+};
+
+export const addShapeHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { slideIndex, type, left, top, width, height, text, fillColor } = args as {
+    slideIndex?: number;
+    type?: string;
+    left?: number;
+    top?: number;
+    width?: number;
+    height?: number;
+    text?: string;
+    fillColor?: string;
+  };
+
+  try {
+    const response = await wpsClient.executeMethod<{
+      success: boolean;
+      message: string;
+      name: string;
+      slideIndex: number;
+    }>(
+      'addShape',
+      {
+        slideIndex: slideIndex || 1,
+        type: type || 'rectangle',
+        left: left || 100,
+        top: top || 100,
+        width: width || 100,
+        height: height || 100,
+        text,
+        fillColor,
+      },
+      WpsAppType.PRESENTATION
+    );
+
+    if (response.success && response.data) {
+      const shapeNameMap: Record<string, string> = {
+        rectangle: '矩形', oval: '椭圆', triangle: '三角形', diamond: '菱形',
+        pentagon: '五边形', hexagon: '六边形', arrow: '箭头', star: '星形',
+        heart: '心形', cloud: '云形',
+      };
+      const typeName = shapeNameMap[type || 'rectangle'] || type;
+
+      return {
+        id: uuidv4(),
+        success: true,
+        content: [
+          {
+            type: 'text',
+            text: `形状添加成功！\n幻灯片: 第 ${response.data.slideIndex} 页\n形状类型: ${typeName}\n形状名称: ${response.data.name}${text ? `\n文本: ${text}` : ''}${fillColor ? `\n填充色: ${fillColor}` : ''}`,
+          },
+        ],
+      };
+    } else {
+      return {
+        id: uuidv4(),
+        success: false,
+        content: [{ type: 'text', text: `添加形状失败: ${response.error}` }],
+        error: response.error,
+      };
+    }
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `添加形状出错: ${errMsg}` }],
+      error: errMsg,
+    };
+  }
+};
+
+// ============================================================
+// 11. wps_ppt_set_shape_style - 设置形状样式
+// ============================================================
+
+export const setShapeStyleDefinition: ToolDefinition = {
+  name: 'wps_ppt_set_shape_style',
+  description: `设置幻灯片中形状的样式，包括填充颜色、边框颜色和边框粗细。
+
+使用场景：
+- "把矩形改成红色"
+- "设置形状的边框为蓝色"
+- "修改形状样式"`,
+  category: ToolCategory.PRESENTATION,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      slideIndex: {
+        type: 'number',
+        description: '幻灯片索引（从1开始），默认1',
+      },
+      name: {
+        type: 'string',
+        description: '形状名称（通过getSlideInfo获取）',
+      },
+      shapeIndex: {
+        type: 'number',
+        description: '形状索引（与name二选一）',
+      },
+      fillColor: {
+        type: 'string',
+        description: '填充颜色，十六进制如 #FF0000',
+      },
+      lineColor: {
+        type: 'string',
+        description: '边框颜色，十六进制如 #000000',
+      },
+      lineWidth: {
+        type: 'number',
+        description: '边框粗细（磅）',
+      },
+    },
+    required: [],
+  },
+};
+
+export const setShapeStyleHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { slideIndex, name, shapeIndex, fillColor, lineColor, lineWidth } = args as {
+    slideIndex?: number;
+    name?: string;
+    shapeIndex?: number;
+    fillColor?: string;
+    lineColor?: string;
+    lineWidth?: number;
+  };
+
+  try {
+    const response = await wpsClient.executeMethod<{
+      success: boolean;
+      message: string;
+      name: string;
+    }>(
+      'setShapeStyle',
+      {
+        slideIndex: slideIndex || 1,
+        name,
+        shapeIndex,
+        fillColor,
+        lineColor,
+        lineWidth,
+      },
+      WpsAppType.PRESENTATION
+    );
+
+    if (response.success && response.data) {
+      let output = `形状样式设置成功！\n形状: ${response.data.name}`;
+      if (fillColor) output += `\n填充色: ${fillColor}`;
+      if (lineColor) output += `\n边框色: ${lineColor}`;
+      if (lineWidth) output += `\n边框粗细: ${lineWidth}pt`;
+
+      return {
+        id: uuidv4(),
+        success: true,
+        content: [{ type: 'text', text: output }],
+      };
+    } else {
+      return {
+        id: uuidv4(),
+        success: false,
+        content: [{ type: 'text', text: `设置形状样式失败: ${response.error}` }],
+        error: response.error,
+      };
+    }
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `设置形状样式出错: ${errMsg}` }],
+      error: errMsg,
+    };
+  }
+};
+
+// ============================================================
+// 12. wps_ppt_add_textbox - 添加文本框
+// ============================================================
+
+export const addTextboxDefinition: ToolDefinition = {
+  name: 'wps_ppt_add_textbox',
+  description: `在幻灯片中添加文本框。
+
+使用场景：
+- "在第1页添加一个文本框"
+- "插入一个写着标题的文本框"
+- "添加文本框并设置字号"`,
+  category: ToolCategory.PRESENTATION,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      slideIndex: {
+        type: 'number',
+        description: '幻灯片索引（从1开始），默认1',
+      },
+      left: {
+        type: 'number',
+        description: '左边距（像素），默认100',
+      },
+      top: {
+        type: 'number',
+        description: '上边距（像素），默认100',
+      },
+      width: {
+        type: 'number',
+        description: '宽度（像素），默认200',
+      },
+      height: {
+        type: 'number',
+        description: '高度（像素），默认50',
+      },
+      text: {
+        type: 'string',
+        description: '文本框内容',
+      },
+      fontSize: {
+        type: 'number',
+        description: '字号大小',
+      },
+      fontName: {
+        type: 'string',
+        description: '字体名称，如 "微软雅黑"',
+      },
+    },
+    required: [],
+  },
+};
+
+export const addTextboxHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { slideIndex, left, top, width, height, text, fontSize, fontName } = args as {
+    slideIndex?: number;
+    left?: number;
+    top?: number;
+    width?: number;
+    height?: number;
+    text?: string;
+    fontSize?: number;
+    fontName?: string;
+  };
+
+  try {
+    const response = await wpsClient.executeMethod<{
+      success: boolean;
+      message: string;
+      name: string;
+      slideIndex: number;
+    }>(
+      'addTextBox',
+      {
+        slideIndex: slideIndex || 1,
+        left: left || 100,
+        top: top || 100,
+        width: width || 200,
+        height: height || 50,
+        text,
+        fontSize,
+        fontName,
+      },
+      WpsAppType.PRESENTATION
+    );
+
+    if (response.success && response.data) {
+      return {
+        id: uuidv4(),
+        success: true,
+        content: [
+          {
+            type: 'text',
+            text: `文本框添加成功！\n幻灯片: 第 ${response.data.slideIndex} 页\n名称: ${response.data.name}${text ? `\n内容: "${text}"` : ''}${fontSize ? `\n字号: ${fontSize}` : ''}${fontName ? `\n字体: ${fontName}` : ''}`,
+          },
+        ],
+      };
+    } else {
+      return {
+        id: uuidv4(),
+        success: false,
+        content: [{ type: 'text', text: `添加文本框失败: ${response.error}` }],
+        error: response.error,
+      };
+    }
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `添加文本框出错: ${errMsg}` }],
+      error: errMsg,
+    };
+  }
+};
+
+// ============================================================
+// 13. wps_ppt_set_slide_title - 设置幻灯片标题
+// ============================================================
+
+export const setSlideTitleDefinition: ToolDefinition = {
+  name: 'wps_ppt_set_slide_title',
+  description: `设置幻灯片的标题文本。
+
+使用场景：
+- "把第1页标题改成'年度总结'"
+- "设置标题为'项目进展'"
+- "修改幻灯片标题"`,
+  category: ToolCategory.PRESENTATION,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      slideIndex: {
+        type: 'number',
+        description: '幻灯片索引（从1开始），默认1',
+      },
+      title: {
+        type: 'string',
+        description: '标题文本',
+      },
+    },
+    required: ['title'],
+  },
+};
+
+export const setSlideTitleHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { slideIndex, title } = args as {
+    slideIndex?: number;
+    title: string;
+  };
+
+  try {
+    const response = await wpsClient.executeMethod<{
+      success: boolean;
+      message: string;
+      slideIndex: number;
+      title: string;
+    }>(
+      'setSlideTitle',
+      {
+        slideIndex: slideIndex || 1,
+        title,
+      },
+      WpsAppType.PRESENTATION
+    );
+
+    if (response.success && response.data) {
+      return {
+        id: uuidv4(),
+        success: true,
+        content: [
+          {
+            type: 'text',
+            text: `幻灯片标题设置成功！\n幻灯片: 第 ${response.data.slideIndex} 页\n标题: "${response.data.title}"`,
+          },
+        ],
+      };
+    } else {
+      return {
+        id: uuidv4(),
+        success: false,
+        content: [{ type: 'text', text: `设置幻灯片标题失败: ${response.error}` }],
+        error: response.error,
+      };
+    }
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `设置幻灯片标题出错: ${errMsg}` }],
+      error: errMsg,
+    };
+  }
+};
+
+// ============================================================
+// 14. wps_ppt_insert_image - 插入图片
+// ============================================================
+
+export const insertImageDefinition: ToolDefinition = {
+  name: 'wps_ppt_insert_image',
+  description: `在幻灯片中插入图片。
+
+使用场景：
+- "在第1页插入一张图片"
+- "添加图片到幻灯片"
+- "把这个图片放到PPT里"`,
+  category: ToolCategory.PRESENTATION,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      slideIndex: {
+        type: 'number',
+        description: '幻灯片索引（从1开始），默认1',
+      },
+      path: {
+        type: 'string',
+        description: '图片文件的完整路径',
+      },
+      left: {
+        type: 'number',
+        description: '左边距（像素），默认100',
+      },
+      top: {
+        type: 'number',
+        description: '上边距（像素），默认100',
+      },
+      width: {
+        type: 'number',
+        description: '宽度（像素），不填则保持原始尺寸',
+      },
+      height: {
+        type: 'number',
+        description: '高度（像素），不填则保持原始尺寸',
+      },
+    },
+    required: ['path'],
+  },
+};
+
+export const insertImageHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { slideIndex, path, left, top, width, height } = args as {
+    slideIndex?: number;
+    path: string;
+    left?: number;
+    top?: number;
+    width?: number;
+    height?: number;
+  };
+
+  try {
+    const response = await wpsClient.executeMethod<{
+      success: boolean;
+      message: string;
+      name: string;
+      path: string;
+    }>(
+      'insertPptImage',
+      {
+        slideIndex: slideIndex || 1,
+        path,
+        left: left || 100,
+        top: top || 100,
+        width: width || -1,
+        height: height || -1,
+      },
+      WpsAppType.PRESENTATION
+    );
+
+    if (response.success && response.data) {
+      return {
+        id: uuidv4(),
+        success: true,
+        content: [
+          {
+            type: 'text',
+            text: `图片插入成功！\n幻灯片: 第 ${slideIndex || 1} 页\n图片名称: ${response.data.name}\n图片路径: ${response.data.path}`,
+          },
+        ],
+      };
+    } else {
+      return {
+        id: uuidv4(),
+        success: false,
+        content: [{ type: 'text', text: `插入图片失败: ${response.error}` }],
+        error: response.error,
+      };
+    }
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `插入图片出错: ${errMsg}` }],
+      error: errMsg,
+    };
+  }
+};
+
+// ============================================================
+// 15. wps_ppt_set_shape_text - 设置形状文字
+// ============================================================
+
+export const setShapeTextDefinition: ToolDefinition = {
+  name: 'wps_ppt_set_shape_text',
+  description: `设置幻灯片中指定形状的文字内容。
+
+使用场景：
+- "把第1页的第2个形状文字改成'销售额'"
+- "修改形状里的文字"`,
+  category: ToolCategory.PRESENTATION,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      slideIndex: { type: 'number', description: '幻灯片索引（从1开始）' },
+      shapeIndex: { type: 'number', description: '形状索引（从1开始）' },
+      text: { type: 'string', description: '要设置的文字内容' },
+    },
+    required: ['slideIndex', 'shapeIndex', 'text'],
+  },
+};
+
+export const setShapeTextHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { slideIndex, shapeIndex, text } = args as {
+    slideIndex: number;
+    shapeIndex: number;
+    text: string;
+  };
+
+  try {
+    const response = await wpsClient.executeMethod<{
+      success: boolean;
+      message: string;
+      name: string;
+    }>(
+      'setShapeText',
+      { slideIndex, shapeIndex, text },
+      WpsAppType.PRESENTATION
+    );
+
+    if (response.success && response.data) {
+      return {
+        id: uuidv4(),
+        success: true,
+        content: [{ type: 'text', text: `形状文字设置成功！\n形状: ${response.data.name}\n文字: "${text}"` }],
+      };
+    } else {
+      return {
+        id: uuidv4(),
+        success: false,
+        content: [{ type: 'text', text: `设置形状文字失败: ${response.error}` }],
+        error: response.error,
+      };
+    }
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `设置形状文字出错: ${errMsg}` }],
+      error: errMsg,
+    };
+  }
+};
+
+// ============================================================
 // 导出所有幻灯片操作相关的Tools
 // ============================================================
 
@@ -730,6 +1353,12 @@ export const slideOpsTools: RegisteredTool[] = [
   { definition: setSlideLayoutDefinition, handler: setSlideLayoutHandler },
   { definition: getSlideNotesDefinition, handler: getSlideNotesHandler },
   { definition: setSlideNotesDefinition, handler: setSlideNotesHandler },
+  { definition: addShapeDefinition, handler: addShapeHandler },
+  { definition: setShapeStyleDefinition, handler: setShapeStyleHandler },
+  { definition: addTextboxDefinition, handler: addTextboxHandler },
+  { definition: setSlideTitleDefinition, handler: setSlideTitleHandler },
+  { definition: insertImageDefinition, handler: insertImageHandler },
+  { definition: setShapeTextDefinition, handler: setShapeTextHandler },
 ];
 
 export default slideOpsTools;
