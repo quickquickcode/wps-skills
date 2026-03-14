@@ -10,6 +10,9 @@
  * - wps_excel_write_range: 写入数据到指定范围
  * - wps_excel_clean_data: 数据清洗（核心功能）
  * - wps_excel_remove_duplicates: 删除重复行
+ * - wps_excel_sort_range: 对选定区域排序
+ * - wps_excel_find_replace: 查找并替换内容
+ * - wps_excel_insert_row: 插入行
  */
 
 import { v4 as uuidv4 } from 'uuid';
@@ -409,6 +412,129 @@ export const removeDuplicatesHandler: ToolHandler = async (
 };
 
 /**
+ * 对选定区域排序
+ */
+export const sortRangeDefinition: ToolDefinition = {
+  name: 'wps_excel_sort_range',
+  description: '对Excel选定区域按指定列排序。',
+  category: ToolCategory.SPREADSHEET,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      range: { type: 'string', description: '要排序的范围，如 A1:D100' },
+      column: { type: 'number', description: '排序依据的列号（从1开始）' },
+      ascending: { type: 'boolean', description: '是否升序，默认true' },
+    },
+    required: ['range', 'column'],
+  },
+};
+
+export const sortRangeHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { range, column, ascending } = args as {
+    range: string;
+    column: number;
+    ascending?: boolean;
+  };
+  try {
+    const response = await wpsClient.executeMethod<{ message: string }>(
+      'sortRange',
+      { range, column, ascending: ascending !== false },
+      WpsAppType.SPREADSHEET
+    );
+    if (!response.success) {
+      return { id: uuidv4(), success: false, content: [{ type: 'text', text: `排序失败: ${response.error}` }], error: response.error };
+    }
+    return { id: uuidv4(), success: true, content: [{ type: 'text', text: `排序完成！范围: ${range}，按第${column}列${ascending !== false ? '升序' : '降序'}` }] };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return { id: uuidv4(), success: false, content: [{ type: 'text', text: `排序出错: ${errMsg}` }], error: errMsg };
+  }
+};
+
+/**
+ * 查找并替换内容
+ */
+export const findReplaceDefinition: ToolDefinition = {
+  name: 'wps_excel_find_replace',
+  description: '在Excel中查找并替换内容。',
+  category: ToolCategory.SPREADSHEET,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      find: { type: 'string', description: '要查找的文本' },
+      replace: { type: 'string', description: '替换为的文本' },
+      matchCase: { type: 'boolean', description: '是否区分大小写，默认false' },
+    },
+    required: ['find', 'replace'],
+  },
+};
+
+export const findReplaceHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { find, replace, matchCase } = args as {
+    find: string;
+    replace: string;
+    matchCase?: boolean;
+  };
+  try {
+    const response = await wpsClient.executeMethod<{ count: number; message: string }>(
+      'findReplace',
+      { find, replace, matchCase: matchCase || false },
+      WpsAppType.SPREADSHEET
+    );
+    if (!response.success) {
+      return { id: uuidv4(), success: false, content: [{ type: 'text', text: `查找替换失败: ${response.error}` }], error: response.error };
+    }
+    const count = response.data?.count || 0;
+    return { id: uuidv4(), success: true, content: [{ type: 'text', text: `查找替换完成！将"${find}"替换为"${replace}"，共替换${count}处` }] };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return { id: uuidv4(), success: false, content: [{ type: 'text', text: `查找替换出错: ${errMsg}` }], error: errMsg };
+  }
+};
+
+/**
+ * 插入行
+ */
+export const insertRowDefinition: ToolDefinition = {
+  name: 'wps_excel_insert_row',
+  description: '在Excel中插入行。',
+  category: ToolCategory.SPREADSHEET,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      row: { type: 'number', description: '在第几行前插入（从1开始）' },
+      count: { type: 'number', description: '插入行数，默认1' },
+    },
+    required: ['row'],
+  },
+};
+
+export const insertRowHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { row, count } = args as { row: number; count?: number };
+  const insertCount = count || 1;
+  try {
+    const response = await wpsClient.executeMethod<{ message: string }>(
+      'insertRow',
+      { row, count: insertCount },
+      WpsAppType.SPREADSHEET
+    );
+    if (!response.success) {
+      return { id: uuidv4(), success: false, content: [{ type: 'text', text: `插入行失败: ${response.error}` }], error: response.error };
+    }
+    return { id: uuidv4(), success: true, content: [{ type: 'text', text: `插入行完成！在第${row}行前插入了${insertCount}行` }] };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return { id: uuidv4(), success: false, content: [{ type: 'text', text: `插入行出错: ${errMsg}` }], error: errMsg };
+  }
+};
+
+/**
  * 导出所有数据处理相关的Tools
  */
 export const dataTools: RegisteredTool[] = [
@@ -416,6 +542,9 @@ export const dataTools: RegisteredTool[] = [
   { definition: writeRangeDefinition, handler: writeRangeHandler },
   { definition: cleanDataDefinition, handler: cleanDataHandler },
   { definition: removeDuplicatesDefinition, handler: removeDuplicatesHandler },
+  { definition: sortRangeDefinition, handler: sortRangeHandler },
+  { definition: findReplaceDefinition, handler: findReplaceHandler },
+  { definition: insertRowDefinition, handler: insertRowHandler },
 ];
 
 export default dataTools;

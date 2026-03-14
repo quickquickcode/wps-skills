@@ -18,7 +18,7 @@ import { excelFormatTools } from './format';
  * 所有Excel相关的Tools
  * 包含：
  * - 公式Tools: set_formula, generate_formula, diagnose_formula
- * - 数据Tools: read_range, write_range, clean_data, remove_duplicates
+ * - 数据Tools: read_range, write_range, clean_data, remove_duplicates, sort_range, find_replace, insert_row
  * - 透视表Tools: create_pivot_table, update_pivot_table
  * - 图表Tools: create_chart, update_chart
  * - 工作表Tools: create_sheet, delete_sheet, rename_sheet, copy_sheet, get_sheet_list, switch_sheet, move_sheet, get_selection
@@ -60,6 +60,12 @@ export {
   cleanDataHandler,
   removeDuplicatesDefinition,
   removeDuplicatesHandler,
+  sortRangeDefinition,
+  sortRangeHandler,
+  findReplaceDefinition,
+  findReplaceHandler,
+  insertRowDefinition,
+  insertRowHandler,
 } from './data';
 
 export {
