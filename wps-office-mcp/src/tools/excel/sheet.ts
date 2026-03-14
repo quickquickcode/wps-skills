@@ -20,6 +20,8 @@
  * - wps_excel_freeze_panes: 冻结/取消冻结窗格
  * - wps_excel_auto_fill: 自动填充单元格区域
  * - wps_excel_set_named_range: 设置命名范围
+ * - wps_excel_hide_column: 隐藏/显示列
+ * - wps_excel_auto_sum: 对指定列/行自动求和
  */
 
 import { v4 as uuidv4 } from 'uuid';
@@ -990,6 +992,156 @@ export const setNamedRangeHandler: ToolHandler = async (
 };
 
 /**
+ * 隐藏/显示列
+ */
+export const hideColumnDefinition: ToolDefinition = {
+  name: 'wps_excel_hide_column',
+  description: '隐藏或显示指定列。可指定起始列号、列数和隐藏/显示状态。',
+  category: ToolCategory.SPREADSHEET,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      column: {
+        type: 'number',
+        description: '起始列号（从1开始）',
+      },
+      count: {
+        type: 'number',
+        description: '列数，默认1',
+      },
+      hide: {
+        type: 'boolean',
+        description: '是否隐藏，true为隐藏，false为显示',
+      },
+    },
+    required: ['column', 'count', 'hide'],
+  },
+};
+
+export const hideColumnHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { column, count = 1, hide } = args as {
+    column: number;
+    count: number;
+    hide: boolean;
+  };
+
+  try {
+    const response = await wpsClient.executeMethod<{
+      column: number;
+      count: number;
+      hidden: boolean;
+    }>(
+      'hideColumn',
+      { column, count, hide },
+      WpsAppType.SPREADSHEET
+    );
+
+    if (!response.success) {
+      return {
+        id: uuidv4(),
+        success: false,
+        content: [{ type: 'text', text: `${hide ? '隐藏' : '显示'}列失败: ${response.error}` }],
+        error: response.error,
+      };
+    }
+
+    const action = hide ? '隐藏' : '显示';
+    return {
+      id: uuidv4(),
+      success: true,
+      content: [
+        {
+          type: 'text',
+          text: `已成功${action}第${column}列起共${count}列`,
+        },
+      ],
+    };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `隐藏/显示列出错: ${errMsg}` }],
+      error: errMsg,
+    };
+  }
+};
+
+/**
+ * 对指定列/行自动求和
+ */
+export const autoSumDefinition: ToolDefinition = {
+  name: 'wps_excel_auto_sum',
+  description: '对指定范围的列或行自动求和，并将结果写入目标单元格。',
+  category: ToolCategory.SPREADSHEET,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      range: {
+        type: 'string',
+        description: '要求和的数据范围，如 "A1:A10" 或 "B2:F2"',
+      },
+      targetCell: {
+        type: 'string',
+        description: '求和结果写入的目标单元格，如 "A11" 或 "G2"',
+      },
+    },
+    required: ['range', 'targetCell'],
+  },
+};
+
+export const autoSumHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { range, targetCell } = args as {
+    range: string;
+    targetCell: string;
+  };
+
+  try {
+    const response = await wpsClient.executeMethod<{
+      range: string;
+      targetCell: string;
+      result: number;
+    }>(
+      'autoSum',
+      { range, targetCell },
+      WpsAppType.SPREADSHEET
+    );
+
+    if (!response.success) {
+      return {
+        id: uuidv4(),
+        success: false,
+        content: [{ type: 'text', text: `自动求和失败: ${response.error}` }],
+        error: response.error,
+      };
+    }
+
+    return {
+      id: uuidv4(),
+      success: true,
+      content: [
+        {
+          type: 'text',
+          text: `自动求和成功！\n求和范围: ${range}\n结果写入: ${targetCell}`,
+        },
+      ],
+    };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `自动求和出错: ${errMsg}` }],
+      error: errMsg,
+    };
+  }
+};
+
+/**
  * 导出所有工作表管理相关的Tools
  */
 export const sheetTools: RegisteredTool[] = [
@@ -1007,6 +1159,8 @@ export const sheetTools: RegisteredTool[] = [
   { definition: freezePanesDefinition, handler: freezePanesHandler },
   { definition: autoFillDefinition, handler: autoFillHandler },
   { definition: setNamedRangeDefinition, handler: setNamedRangeHandler },
+  { definition: hideColumnDefinition, handler: hideColumnHandler },
+  { definition: autoSumDefinition, handler: autoSumHandler },
 ];
 
 export default sheetTools;
