@@ -20,14 +20,14 @@ import { pptTools } from './ppt';
 import { commonTools } from './common';
 
 /**
- * 所有MCP Tools集合（共55个）
+ * 所有MCP Tools集合（共58个）
  *
- * Excel (27个):
+ * Excel (30个):
  *   公式(3): set_formula, generate_formula, diagnose_formula
  *   数据(4): read_range, write_range, clean_data, remove_duplicates
  *   图表(2): create_chart, update_chart
  *   透视表(2): create_pivot_table, update_pivot_table
- *   工作表(8): create_sheet, delete_sheet, rename_sheet, copy_sheet, get_sheet_list, switch_sheet, move_sheet, get_selection
+ *   工作表(11): create_sheet, delete_sheet, rename_sheet, copy_sheet, get_sheet_list, switch_sheet, move_sheet, get_selection, delete_row, insert_column, delete_column
  *   格式化(8): set_cell_format, set_cell_style, set_border, set_number_format, merge_cells, unmerge_cells, set_column_width, set_row_height
  *
  * Word (9个):

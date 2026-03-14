@@ -14,6 +14,9 @@
  * - wps_excel_switch_sheet: 切换工作表
  * - wps_excel_move_sheet: 移动工作表
  * - wps_excel_get_selection: 获取当前选中区域
+ * - wps_excel_delete_row: 删除指定行
+ * - wps_excel_insert_column: 插入列
+ * - wps_excel_delete_column: 删除指定列
  */
 
 import { v4 as uuidv4 } from 'uuid';
@@ -567,6 +570,207 @@ export const getSelectionHandler: ToolHandler = async (
 };
 
 /**
+ * 删除指定行
+ */
+export const deleteRowDefinition: ToolDefinition = {
+  name: 'wps_excel_delete_row',
+  description: '删除指定行。可指定起始行号和删除行数。',
+  category: ToolCategory.SPREADSHEET,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      row: {
+        type: 'number',
+        description: '要删除的起始行号（从1开始）',
+      },
+      count: {
+        type: 'number',
+        description: '要删除的行数，默认1',
+      },
+    },
+    required: ['row'],
+  },
+};
+
+export const deleteRowHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { row, count = 1 } = args as { row: number; count?: number };
+
+  try {
+    const response = await wpsClient.executeMethod<{
+      deletedRows: number;
+    }>(
+      'deleteRow',
+      { row, count },
+      WpsAppType.SPREADSHEET
+    );
+
+    if (!response.success) {
+      return {
+        id: uuidv4(),
+        success: false,
+        content: [{ type: 'text', text: `删除行失败: ${response.error}` }],
+        error: response.error,
+      };
+    }
+
+    return {
+      id: uuidv4(),
+      success: true,
+      content: [
+        {
+          type: 'text',
+          text: `已成功删除第${row}行起共${count}行`,
+        },
+      ],
+    };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `删除行出错: ${errMsg}` }],
+      error: errMsg,
+    };
+  }
+};
+
+/**
+ * 插入列
+ */
+export const insertColumnDefinition: ToolDefinition = {
+  name: 'wps_excel_insert_column',
+  description: '在指定位置插入列。可指定起始列号和插入列数。',
+  category: ToolCategory.SPREADSHEET,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      column: {
+        type: 'number',
+        description: '要插入的列号（从1开始）',
+      },
+      count: {
+        type: 'number',
+        description: '要插入的列数，默认1',
+      },
+    },
+    required: ['column'],
+  },
+};
+
+export const insertColumnHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { column, count = 1 } = args as { column: number; count?: number };
+
+  try {
+    const response = await wpsClient.executeMethod<{
+      insertedColumns: number;
+    }>(
+      'insertColumn',
+      { column, count },
+      WpsAppType.SPREADSHEET
+    );
+
+    if (!response.success) {
+      return {
+        id: uuidv4(),
+        success: false,
+        content: [{ type: 'text', text: `插入列失败: ${response.error}` }],
+        error: response.error,
+      };
+    }
+
+    return {
+      id: uuidv4(),
+      success: true,
+      content: [
+        {
+          type: 'text',
+          text: `已在第${column}列处成功插入${count}列`,
+        },
+      ],
+    };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `插入列出错: ${errMsg}` }],
+      error: errMsg,
+    };
+  }
+};
+
+/**
+ * 删除指定列
+ */
+export const deleteColumnDefinition: ToolDefinition = {
+  name: 'wps_excel_delete_column',
+  description: '删除指定列。可指定起始列号和删除列数。',
+  category: ToolCategory.SPREADSHEET,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      column: {
+        type: 'number',
+        description: '要删除的起始列号（从1开始）',
+      },
+      count: {
+        type: 'number',
+        description: '要删除的列数，默认1',
+      },
+    },
+    required: ['column'],
+  },
+};
+
+export const deleteColumnHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { column, count = 1 } = args as { column: number; count?: number };
+
+  try {
+    const response = await wpsClient.executeMethod<{
+      deletedColumns: number;
+    }>(
+      'deleteColumn',
+      { column, count },
+      WpsAppType.SPREADSHEET
+    );
+
+    if (!response.success) {
+      return {
+        id: uuidv4(),
+        success: false,
+        content: [{ type: 'text', text: `删除列失败: ${response.error}` }],
+        error: response.error,
+      };
+    }
+
+    return {
+      id: uuidv4(),
+      success: true,
+      content: [
+        {
+          type: 'text',
+          text: `已成功删除第${column}列起共${count}列`,
+        },
+      ],
+    };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `删除列出错: ${errMsg}` }],
+      error: errMsg,
+    };
+  }
+};
+
+/**
  * 导出所有工作表管理相关的Tools
  */
 export const sheetTools: RegisteredTool[] = [
@@ -578,6 +782,9 @@ export const sheetTools: RegisteredTool[] = [
   { definition: switchSheetDefinition, handler: switchSheetHandler },
   { definition: moveSheetDefinition, handler: moveSheetHandler },
   { definition: getSelectionDefinition, handler: getSelectionHandler },
+  { definition: deleteRowDefinition, handler: deleteRowHandler },
+  { definition: insertColumnDefinition, handler: insertColumnHandler },
+  { definition: deleteColumnDefinition, handler: deleteColumnHandler },
 ];
 
 export default sheetTools;

@@ -21,7 +21,7 @@ import { excelFormatTools } from './format';
  * - 数据Tools: read_range, write_range, clean_data, remove_duplicates, sort_range, find_replace, insert_row
  * - 透视表Tools: create_pivot_table, update_pivot_table
  * - 图表Tools: create_chart, update_chart
- * - 工作表Tools: create_sheet, delete_sheet, rename_sheet, copy_sheet, get_sheet_list, switch_sheet, move_sheet, get_selection
+ * - 工作表Tools: create_sheet, delete_sheet, rename_sheet, copy_sheet, get_sheet_list, switch_sheet, move_sheet, get_selection, delete_row, insert_column, delete_column
  * - 格式化Tools: set_cell_format, set_cell_style, set_border, set_number_format, merge_cells, unmerge_cells, set_column_width, set_row_height
  */
 export const excelTools: RegisteredTool[] = [
@@ -99,6 +99,12 @@ export {
   moveSheetHandler,
   getSelectionDefinition,
   getSelectionHandler,
+  deleteRowDefinition,
+  deleteRowHandler,
+  insertColumnDefinition,
+  insertColumnHandler,
+  deleteColumnDefinition,
+  deleteColumnHandler,
 } from './sheet';
 
 export {
