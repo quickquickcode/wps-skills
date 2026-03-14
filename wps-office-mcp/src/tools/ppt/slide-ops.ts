@@ -26,6 +26,8 @@
  * - wps_ppt_set_slide_size: 设置幻灯片尺寸
  * - wps_ppt_set_transition: 设置幻灯片切换效果
  * - wps_ppt_add_chart: 在幻灯片中插入图表
+ * - wps_ppt_set_shape_fill: 设置形状填充颜色
+ * - wps_ppt_add_speaker_notes: 添加演讲者备注
  */
 
 import { v4 as uuidv4 } from 'uuid';
@@ -1807,6 +1809,151 @@ export const addChartHandler: ToolHandler = async (
 };
 
 // ============================================================
+// 21. wps_ppt_set_shape_fill - 设置形状填充颜色
+// ============================================================
+
+export const setShapeFillDefinition: ToolDefinition = {
+  name: 'wps_ppt_set_shape_fill',
+  description: `设置幻灯片中指定形状的填充颜色。
+
+使用场景：
+- "把第1页的第2个形状填充为红色"
+- "修改形状背景色为#00FF00"
+- "设置形状的填充颜色"`,
+  category: ToolCategory.PRESENTATION,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      slideIndex: { type: 'number', description: '幻灯片索引（从1开始）' },
+      shapeIndex: { type: 'number', description: '形状索引（从1开始）' },
+      color: { type: 'string', description: '填充颜色，十六进制如 #FF0000' },
+    },
+    required: ['slideIndex', 'shapeIndex', 'color'],
+  },
+};
+
+export const setShapeFillHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { slideIndex, shapeIndex, color } = args as {
+    slideIndex: number;
+    shapeIndex: number;
+    color: string;
+  };
+
+  try {
+    const response = await wpsClient.executeMethod<{
+      success: boolean;
+      message: string;
+      name?: string;
+    }>(
+      'setShapeFill',
+      { slideIndex, shapeIndex, color },
+      WpsAppType.PRESENTATION
+    );
+
+    if (response.success) {
+      return {
+        id: uuidv4(),
+        success: true,
+        content: [
+          {
+            type: 'text',
+            text: `形状填充颜色设置成功！\n幻灯片: 第 ${slideIndex} 页\n形状: 第 ${shapeIndex} 个\n填充颜色: ${color}`,
+          },
+        ],
+      };
+    } else {
+      return {
+        id: uuidv4(),
+        success: false,
+        content: [{ type: 'text', text: `设置形状填充失败: ${response.error}` }],
+        error: response.error,
+      };
+    }
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `设置形状填充出错: ${errMsg}` }],
+      error: errMsg,
+    };
+  }
+};
+
+// ============================================================
+// 22. wps_ppt_add_speaker_notes - 添加演讲者备注
+// ============================================================
+
+export const addSpeakerNotesDefinition: ToolDefinition = {
+  name: 'wps_ppt_add_speaker_notes',
+  description: `添加或追加演讲者备注到指定幻灯片。
+
+使用场景：
+- "给第1页添加演讲者备注"
+- "在备注中写上提示词"
+- "追加演讲提示到第3页"`,
+  category: ToolCategory.PRESENTATION,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      slideIndex: { type: 'number', description: '幻灯片索引（从1开始）' },
+      notes: { type: 'string', description: '演讲者备注内容' },
+    },
+    required: ['slideIndex', 'notes'],
+  },
+};
+
+export const addSpeakerNotesHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { slideIndex, notes } = args as {
+    slideIndex: number;
+    notes: string;
+  };
+
+  try {
+    const response = await wpsClient.executeMethod<{
+      success: boolean;
+      message: string;
+    }>(
+      'addSpeakerNotes',
+      { slideIndex, notes },
+      WpsAppType.PRESENTATION
+    );
+
+    if (response.success) {
+      return {
+        id: uuidv4(),
+        success: true,
+        content: [
+          {
+            type: 'text',
+            text: `演讲者备注添加成功！\n幻灯片: 第 ${slideIndex} 页\n备注内容: "${notes.length > 50 ? notes.substring(0, 50) + '...' : notes}"`,
+          },
+        ],
+      };
+    } else {
+      return {
+        id: uuidv4(),
+        success: false,
+        content: [{ type: 'text', text: `添加演讲者备注失败: ${response.error}` }],
+        error: response.error,
+      };
+    }
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `添加演讲者备注出错: ${errMsg}` }],
+      error: errMsg,
+    };
+  }
+};
+
+// ============================================================
 // 导出所有幻灯片操作相关的Tools
 // ============================================================
 
@@ -1831,6 +1978,8 @@ export const slideOpsTools: RegisteredTool[] = [
   { definition: setSlideSizeDefinition, handler: setSlideSizeHandler },
   { definition: setTransitionDefinition, handler: setTransitionHandler },
   { definition: addChartDefinition, handler: addChartHandler },
+  { definition: setShapeFillDefinition, handler: setShapeFillHandler },
+  { definition: addSpeakerNotesDefinition, handler: addSpeakerNotesHandler },
 ];
 
 export default slideOpsTools;
