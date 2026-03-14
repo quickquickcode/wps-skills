@@ -15,7 +15,7 @@ import { documentTools } from './document';
  * 所有Word相关的Tools
  * 包含：
  * - 格式化Tools: apply_style, set_font, generate_toc
- * - 内容Tools: insert_text, find_replace
+ * - 内容Tools: insert_text, find_replace, insert_table, set_paragraph, get_active_document
  * - 文档管理Tools: get_open_documents, switch_document, open_document, get_document_text
  */
 export const wordTools: RegisteredTool[] = [
@@ -44,6 +44,12 @@ export {
   insertTextHandler,
   findReplaceDefinition,
   findReplaceHandler,
+  insertTableDefinition,
+  insertTableHandler,
+  setParagraphDefinition,
+  setParagraphHandler,
+  getActiveDocumentDefinition,
+  getActiveDocumentHandler,
 } from './content';
 
 export {

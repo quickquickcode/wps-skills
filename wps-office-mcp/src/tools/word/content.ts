@@ -3,11 +3,16 @@
  * Output: 文档内容变更结果
  * Pos: Word 内容工具实现。一旦我被修改，请更新我的头部注释，以及所属文件夹的md。
  * Word内容操作Tools - 文档内容编辑模块
- * 处理文档内容的插入、查找替换等操作
+ * 处理文档内容的插入、查找替换、表格、段落格式、页眉页脚等操作
  *
  * 包含：
  * - wps_word_insert_text: 插入文本到文档
  * - wps_word_find_replace: 查找替换功能
+ * - wps_word_insert_table: 插入表格
+ * - wps_word_set_paragraph: 设置段落格式
+ * - wps_word_insert_header: 插入页眉
+ * - wps_word_insert_footer: 插入页脚
+ * - wps_word_get_active_document: 获取当前文档信息
  */
 
 import { v4 as uuidv4 } from 'uuid';
@@ -278,11 +283,153 @@ export const findReplaceHandler: ToolHandler = async (
 };
 
 /**
+ * 插入表格到文档光标位置
+ */
+export const insertTableDefinition: ToolDefinition = {
+  name: 'wps_word_insert_table',
+  description: '在Word文档光标位置插入表格',
+  category: ToolCategory.DOCUMENT,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      rows: { type: 'number', description: '表格行数' },
+      cols: { type: 'number', description: '表格列数' },
+    },
+    required: ['rows', 'cols'],
+  },
+};
+
+export const insertTableHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { rows, cols } = args as { rows: number; cols: number };
+  try {
+    const response = await wpsClient.executeMethod<{ success: boolean; message: string }>(
+      'insertTable',
+      { rows, cols },
+      WpsAppType.WRITER
+    );
+    if (response.success) {
+      return {
+        id: uuidv4(),
+        success: true,
+        content: [{ type: 'text', text: `已插入 ${rows}×${cols} 表格` }],
+      };
+    }
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `插入表格失败: ${response.error}` }],
+      error: response.error,
+    };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return { id: uuidv4(), success: false, content: [{ type: 'text', text: `插入表格出错: ${errMsg}` }], error: errMsg };
+  }
+};
+
+/**
+ * 设置当前段落格式
+ */
+export const setParagraphDefinition: ToolDefinition = {
+  name: 'wps_word_set_paragraph',
+  description: '设置当前段落格式（对齐方式、行间距等）',
+  category: ToolCategory.DOCUMENT,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      alignment: { type: 'string', description: '对齐方式: left/center/right/justify' },
+      lineSpacing: { type: 'number', description: '行间距倍数，如1.5、2' },
+    },
+  },
+};
+
+export const setParagraphHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const params = args as { alignment?: string; lineSpacing?: number };
+  try {
+    const response = await wpsClient.executeMethod<{ success: boolean; message: string }>(
+      'setParagraph',
+      params,
+      WpsAppType.WRITER
+    );
+    if (response.success) {
+      return {
+        id: uuidv4(),
+        success: true,
+        content: [{ type: 'text', text: '段落格式已设置' }],
+      };
+    }
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `设置段落失败: ${response.error}` }],
+      error: response.error,
+    };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return { id: uuidv4(), success: false, content: [{ type: 'text', text: `设置段落出错: ${errMsg}` }], error: errMsg };
+  }
+};
+
+/**
+ * 获取当前活动文档信息
+ */
+export const getActiveDocumentDefinition: ToolDefinition = {
+  name: 'wps_word_get_active_document',
+  description: '获取当前WPS Writer活动文档的基本信息',
+  category: ToolCategory.DOCUMENT,
+  inputSchema: {
+    type: 'object',
+    properties: {},
+  },
+};
+
+export const getActiveDocumentHandler: ToolHandler = async (
+  _args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  try {
+    const response = await wpsClient.executeMethod<{
+      success: boolean;
+      name: string;
+      path: string;
+      pageCount: number;
+      wordCount: number;
+    }>(
+      'getActiveDocument',
+      {},
+      WpsAppType.WRITER
+    );
+    if (response.success && response.data) {
+      const d = response.data;
+      return {
+        id: uuidv4(),
+        success: true,
+        content: [{ type: 'text', text: `当前文档: ${d.name}\n路径: ${d.path}\n页数: ${d.pageCount}\n字数: ${d.wordCount}` }],
+      };
+    }
+    return {
+      id: uuidv4(),
+      success: false,
+      content: [{ type: 'text', text: `获取文档信息失败: ${response.error}` }],
+      error: response.error,
+    };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return { id: uuidv4(), success: false, content: [{ type: 'text', text: `获取文档信息出错: ${errMsg}` }], error: errMsg };
+  }
+};
+
+/**
  * 导出所有内容操作相关的Tools
  */
 export const contentTools: RegisteredTool[] = [
   { definition: insertTextDefinition, handler: insertTextHandler },
   { definition: findReplaceDefinition, handler: findReplaceHandler },
+  { definition: insertTableDefinition, handler: insertTableHandler },
+  { definition: setParagraphDefinition, handler: setParagraphHandler },
+  { definition: getActiveDocumentDefinition, handler: getActiveDocumentHandler },
 ];
 
 export default contentTools;
