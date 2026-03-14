@@ -13,6 +13,9 @@
  * - wps_excel_sort_range: 对选定区域排序
  * - wps_excel_find_replace: 查找并替换内容
  * - wps_excel_insert_row: 插入行
+ * - wps_excel_add_comment: 给单元格添加批注
+ * - wps_excel_protect_sheet: 保护/取消保护工作表
+ * - wps_excel_set_conditional_format: 设置条件格式
  */
 
 import { v4 as uuidv4 } from 'uuid';
@@ -535,6 +538,119 @@ export const insertRowHandler: ToolHandler = async (
 };
 
 /**
+ * 给单元格添加批注
+ */
+export const addCommentDefinition: ToolDefinition = {
+  name: 'wps_excel_add_comment',
+  description: '给单元格添加批注。',
+  category: ToolCategory.SPREADSHEET,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      cell: { type: 'string', description: '单元格地址，如 A1、B2' },
+      comment: { type: 'string', description: '批注内容' },
+    },
+    required: ['cell', 'comment'],
+  },
+};
+
+export const addCommentHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { cell, comment } = args as { cell: string; comment: string };
+  try {
+    const response = await wpsClient.executeMethod<{ message: string }>(
+      'addComment',
+      { cell, comment },
+      WpsAppType.SPREADSHEET
+    );
+    if (!response.success) {
+      return { id: uuidv4(), success: false, content: [{ type: 'text', text: `添加批注失败: ${response.error}` }], error: response.error };
+    }
+    return { id: uuidv4(), success: true, content: [{ type: 'text', text: `批注添加成功！单元格: ${cell}` }] };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return { id: uuidv4(), success: false, content: [{ type: 'text', text: `添加批注出错: ${errMsg}` }], error: errMsg };
+  }
+};
+
+/**
+ * 保护/取消保护工作表
+ */
+export const protectSheetDefinition: ToolDefinition = {
+  name: 'wps_excel_protect_sheet',
+  description: '保护或取消保护工作表。',
+  category: ToolCategory.SPREADSHEET,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      password: { type: 'string', description: '保护密码（可选）' },
+      protect: { type: 'boolean', description: '是否保护，默认true' },
+    },
+    required: [],
+  },
+};
+
+export const protectSheetHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { password, protect } = args as { password?: string; protect?: boolean };
+  const doProtect = protect !== false;
+  try {
+    const response = await wpsClient.executeMethod<{ message: string }>(
+      'protectSheet',
+      { password, protect: doProtect },
+      WpsAppType.SPREADSHEET
+    );
+    if (!response.success) {
+      return { id: uuidv4(), success: false, content: [{ type: 'text', text: `${doProtect ? '保护' : '取消保护'}工作表失败: ${response.error}` }], error: response.error };
+    }
+    return { id: uuidv4(), success: true, content: [{ type: 'text', text: `工作表${doProtect ? '保护' : '取消保护'}成功！` }] };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return { id: uuidv4(), success: false, content: [{ type: 'text', text: `${doProtect ? '保护' : '取消保护'}工作表出错: ${errMsg}` }], error: errMsg };
+  }
+};
+
+/**
+ * 设置条件格式
+ */
+export const setConditionalFormatDefinition: ToolDefinition = {
+  name: 'wps_excel_set_conditional_format',
+  description: '设置条件格式。',
+  category: ToolCategory.SPREADSHEET,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      range: { type: 'string', description: '要设置条件格式的范围，如 A1:D100' },
+      condition: { type: 'string', description: '条件表达式，如 ">100"、"=0"、"between(1,10)"' },
+      format: { type: 'string', description: '格式描述，如 "red_fill"、"bold"、"green_font"' },
+    },
+    required: ['range', 'condition', 'format'],
+  },
+};
+
+export const setConditionalFormatHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  const { range, condition, format } = args as { range: string; condition: string; format: string };
+  try {
+    const response = await wpsClient.executeMethod<{ message: string }>(
+      'setConditionalFormat',
+      { range, condition, format },
+      WpsAppType.SPREADSHEET
+    );
+    if (!response.success) {
+      return { id: uuidv4(), success: false, content: [{ type: 'text', text: `设置条件格式失败: ${response.error}` }], error: response.error };
+    }
+    return { id: uuidv4(), success: true, content: [{ type: 'text', text: `条件格式设置成功！范围: ${range}，条件: ${condition}，格式: ${format}` }] };
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    return { id: uuidv4(), success: false, content: [{ type: 'text', text: `设置条件格式出错: ${errMsg}` }], error: errMsg };
+  }
+};
+
+/**
  * 导出所有数据处理相关的Tools
  */
 export const dataTools: RegisteredTool[] = [
@@ -545,6 +661,9 @@ export const dataTools: RegisteredTool[] = [
   { definition: sortRangeDefinition, handler: sortRangeHandler },
   { definition: findReplaceDefinition, handler: findReplaceHandler },
   { definition: insertRowDefinition, handler: insertRowHandler },
+  { definition: addCommentDefinition, handler: addCommentHandler },
+  { definition: protectSheetDefinition, handler: protectSheetHandler },
+  { definition: setConditionalFormatDefinition, handler: setConditionalFormatHandler },
 ];
 
 export default dataTools;

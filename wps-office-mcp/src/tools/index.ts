@@ -20,11 +20,11 @@ import { pptTools } from './ppt';
 import { commonTools } from './common';
 
 /**
- * 所有MCP Tools集合（共58个）
+ * 所有MCP Tools集合（共64个）
  *
- * Excel (30个):
+ * Excel (33个):
  *   公式(3): set_formula, generate_formula, diagnose_formula
- *   数据(4): read_range, write_range, clean_data, remove_duplicates
+ *   数据(7): read_range, write_range, clean_data, remove_duplicates, add_comment, protect_sheet, set_conditional_format
  *   图表(2): create_chart, update_chart
  *   透视表(2): create_pivot_table, update_pivot_table
  *   工作表(11): create_sheet, delete_sheet, rename_sheet, copy_sheet, get_sheet_list, switch_sheet, move_sheet, get_selection, delete_row, insert_column, delete_column
@@ -35,10 +35,10 @@ import { commonTools } from './common';
  *   内容(2): insert_text, find_replace
  *   文档管理(4): get_open_documents, switch_document, open_document, get_document_text
  *
- * PPT (17个):
+ * PPT (20个):
  *   幻灯片(3): add_slide, beautify, unify_font
  *   幻灯片操作(9): delete_slide, duplicate_slide, move_slide, get_slide_count, get_slide_info, switch_slide, set_slide_layout, get_slide_notes, set_slide_notes
- *   演示文稿管理(5): create_presentation, open_presentation, close_presentation, get_open_presentations, switch_presentation
+ *   演示文稿管理(8): create_presentation, open_presentation, close_presentation, get_open_presentations, switch_presentation, set_slide_theme, copy_slide, insert_slide_image
  *
  * Common (2个):
  *   转换(2): convert_to_pdf, convert_format
