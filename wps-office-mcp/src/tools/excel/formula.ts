@@ -319,22 +319,74 @@ export const diagnoseFormulaHandler: ToolHandler = async (
 /**
  * 导出所有公式相关的Tools
  */
+
+export const evaluateFormulaDefinition: ToolDefinition = {
+  name: 'wps_excel_evaluate_formula',
+  description: '计算并返回公式结果',
+  category: ToolCategory.SPREADSHEET,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      formula: { type: 'string', description: '要计算的公式，如 =SUM(A1:A10)' },
+      cell: { type: 'string', description: '目标单元格（可选），如 A1' },
+    },
+    required: ['formula'],
+  },
+};
+
+export const evaluateFormulaHandler = async (args: Record<string, unknown>) => {
+  const response = await wpsClient.executeMethod<{ success: boolean; result: unknown }>(
+    'evaluateFormula', args, WpsAppType.SPREADSHEET
+  );
+  const { v4: uuidv4 } = require('uuid');
+  return { id: uuidv4(), success: response.success, content: [{ type: "text" as const, text: JSON.stringify(response.data) }] };
+};
+
+export const setPrintAreaDefinition: ToolDefinition = {
+  name: 'wps_excel_set_print_area',
+  description: '设置打印区域',
+  category: ToolCategory.SPREADSHEET,
+  inputSchema: {
+    type: 'object',
+    properties: { range: { type: 'string', description: '打印区域，如 A1:D20' } },
+    required: ['range'],
+  },
+};
+
+export const setPrintAreaHandler = async (args: Record<string, unknown>) => {
+  const response = await wpsClient.executeMethod<{ success: boolean }>(
+    'setPrintArea', args, WpsAppType.SPREADSHEET
+  );
+  const { v4: uuidv4 } = require('uuid');
+  return { id: uuidv4(), success: response.success, content: [{ type: "text" as const, text: response.success ? "打印区域已设置" : "设置失败" }] };
+};
+
+export const setZoomDefinition: ToolDefinition = {
+  name: 'wps_excel_zoom',
+  description: '设置工作表缩放比例',
+  category: ToolCategory.SPREADSHEET,
+  inputSchema: {
+    type: 'object',
+    properties: { percent: { type: 'number', description: '缩放百分比，如 100' } },
+    required: ['percent'],
+  },
+};
+
+export const setZoomHandler = async (args: Record<string, unknown>) => {
+  const response = await wpsClient.executeMethod<{ success: boolean }>(
+    'setZoom', args, WpsAppType.SPREADSHEET
+  );
+  const { v4: uuidv4 } = require('uuid');
+  return { id: uuidv4(), success: response.success, content: [{ type: "text" as const, text: response.success ? "缩放已设置" : "设置失败" }] };
+};
+
 export const formulaTools: RegisteredTool[] = [
   { definition: setFormulaDefinition, handler: setFormulaHandler },
   { definition: generateFormulaDefinition, handler: generateFormulaHandler },
   { definition: diagnoseFormulaDefinition, handler: diagnoseFormulaHandler },
+  { definition: evaluateFormulaDefinition, handler: evaluateFormulaHandler },
+  { definition: setPrintAreaDefinition, handler: setPrintAreaHandler },
+  { definition: setZoomDefinition, handler: setZoomHandler },
 ];
 
 export default formulaTools;
-
-server.tool("wps_excel_evaluate_formula", "计算并返回公式结果", { formula: z.string(), cell: z.string().optional() }, async (params) => {
-  return await callWps("evaluateFormula", params);
-});
-
-server.tool("wps_excel_set_print_area", "设置打印区域", { range: z.string() }, async (params) => {
-  return await callWps("setPrintArea", params);
-});
-
-server.tool("wps_excel_zoom", "设置工作表缩放比例", { percent: z.number() }, async (params) => {
-  return await callWps("setZoom", params);
-});

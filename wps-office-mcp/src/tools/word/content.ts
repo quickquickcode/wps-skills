@@ -514,6 +514,71 @@ export const insertImageHandler: ToolHandler = async (
 /**
  * 导出所有内容操作相关的Tools
  */
+export const insertPageBreakDefinition: ToolDefinition = {
+  name: 'wps_word_insert_page_break',
+  description: '在文档光标位置插入分页符',
+  category: ToolCategory.DOCUMENT,
+  inputSchema: {
+    type: 'object',
+    properties: {},
+    required: [],
+  },
+};
+
+export const insertPageBreakHandler: ToolHandler = async (
+  _args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  try {
+    const response = await wpsClient.executeMethod<{ success: boolean; message: string }>(
+      'insertPageBreak',
+      {},
+      WpsAppType.WRITER
+    );
+    return {
+      id: uuidv4(),
+      success: response.success,
+      content: [{ type: 'text', text: response.success ? '分页符已插入' : (response.data as any)?.message || '插入失败' }],
+    };
+  } catch (e: any) {
+    return { id: uuidv4(), success: false, content: [{ type: 'text', text: `插入分页符出错: ${e.message}` }], error: e.message };
+  }
+};
+
+export const setFontDefinition: ToolDefinition = {
+  name: 'wps_word_set_font',
+  description: '设置选中文字的字体属性',
+  category: ToolCategory.DOCUMENT,
+  inputSchema: {
+    type: 'object',
+    properties: {
+      fontName: { type: 'string', description: '字体名称' },
+      fontSize: { type: 'number', description: '字号' },
+      bold: { type: 'boolean', description: '是否加粗' },
+      italic: { type: 'boolean', description: '是否斜体' },
+    },
+    required: [],
+  },
+};
+
+export const setFontHandler: ToolHandler = async (
+  args: Record<string, unknown>
+): Promise<ToolCallResult> => {
+  try {
+    const response = await wpsClient.executeMethod<{ success: boolean; message: string }>(
+      'setFont',
+      args,
+      WpsAppType.WRITER
+    );
+    return {
+      id: uuidv4(),
+      success: response.success,
+      content: [{ type: 'text', text: response.success ? '字体已设置' : (response.data as any)?.message || '设置失败' }],
+    };
+  } catch (e: any) {
+    return { id: uuidv4(), success: false, content: [{ type: 'text', text: `设置字体出错: ${e.message}` }], error: e.message };
+  }
+};
+
 export const contentTools: RegisteredTool[] = [
   { definition: insertTextDefinition, handler: insertTextHandler },
   { definition: findReplaceDefinition, handler: findReplaceHandler },
@@ -521,14 +586,8 @@ export const contentTools: RegisteredTool[] = [
   { definition: setParagraphDefinition, handler: setParagraphHandler },
   { definition: getActiveDocumentDefinition, handler: getActiveDocumentHandler },
   { definition: insertImageDefinition, handler: insertImageHandler },
+  { definition: insertPageBreakDefinition, handler: insertPageBreakHandler },
+  { definition: setFontDefinition, handler: setFontHandler },
 ];
 
 export default contentTools;
-
-server.tool("wps_word_insert_page_break", "插入分页符", {}, async () => {
-  return await callWps("insertPageBreak", {});
-});
-
-server.tool("wps_word_set_font", "设置选中文字字体", { fontName: z.string().optional(), fontSize: z.number().optional(), bold: z.boolean().optional(), italic: z.boolean().optional() }, async (params) => {
-  return await callWps("setFont", params);
-});
