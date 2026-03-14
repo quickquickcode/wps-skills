@@ -13,6 +13,7 @@
  * - wps_word_insert_header: 插入页眉
  * - wps_word_insert_footer: 插入页脚
  * - wps_word_get_active_document: 获取当前文档信息
+ * - wps_word_insert_page_break: 插入分页符
  */
 
 import { v4 as uuidv4 } from 'uuid';
@@ -523,3 +524,11 @@ export const contentTools: RegisteredTool[] = [
 ];
 
 export default contentTools;
+
+server.tool("wps_word_insert_page_break", "插入分页符", {}, async () => {
+  return await callWps("insertPageBreak", {});
+});
+
+server.tool("wps_word_set_font", "设置选中文字字体", { fontName: z.string().optional(), fontSize: z.number().optional(), bold: z.boolean().optional(), italic: z.boolean().optional() }, async (params) => {
+  return await callWps("setFont", params);
+});
