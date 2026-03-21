@@ -9,9 +9,9 @@ docs/
 WPS接口API/
 /scripts/
 /logs/
+planplan.md
 **/README.md
 !README.md
-!README_EN.md
 
 # ============================================
 # Node.js 依赖
