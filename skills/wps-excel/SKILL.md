@@ -202,7 +202,22 @@ description: WPS 表格智能助手，通过自然语言操控 Excel，解决公
 
 ## 可用MCP工具
 
-本Skill通过以下已注册MCP工具与WPS Office交互（共46个）：
+本Skill通过以下已注册MCP工具与WPS Office交互（共65个）：
+
+### 工作簿管理工具（10个）
+
+| MCP工具 | 功能描述 | 关键参数 |
+|---------|---------|----------|
+| `wps_excel_open_workbook` | 打开指定路径的工作簿 | filePath |
+| `wps_excel_get_open_workbooks` | 获取所有已打开的工作簿列表 | （无参数） |
+| `wps_excel_switch_workbook` | 切换到指定工作簿 | name |
+| `wps_excel_close_workbook` | 关闭指定工作簿 | name?, save? |
+| `wps_excel_create_workbook` | 新建空白工作簿 | （无参数） |
+| `wps_excel_get_cell_value` | 获取指定单元格的值 | cell, sheet? |
+| `wps_excel_set_cell_value` | 设置指定单元格的值 | cell, value, sheet? |
+| `wps_excel_get_formula` | 获取单元格中的公式 | cell, sheet? |
+| `wps_excel_get_cell_info` | 获取单元格详细信息（值/格式/公式等） | cell, sheet? |
+| `wps_excel_clear_range` | 清除指定范围的内容 | range, sheet? |
 
 ### 公式工具（6个）
 
@@ -215,7 +230,7 @@ description: WPS 表格智能助手，通过自然语言操控 Excel，解决公
 | `wps_excel_set_print_area` | 设置工作表的打印区域 | range, sheet? |
 | `wps_excel_zoom` | 设置工作表缩放比例 | level, sheet? |
 
-### 数据工具（10个）
+### 数据工具（12个）
 
 | MCP工具 | 功能描述 | 关键参数 |
 |---------|---------|----------|
@@ -229,6 +244,20 @@ description: WPS 表格智能助手，通过自然语言操控 Excel，解决公
 | `wps_excel_add_comment` | 为单元格添加批注 | cell, comment, sheet? |
 | `wps_excel_protect_sheet` | 保护工作表（防止编辑） | password?, sheet? |
 | `wps_excel_set_conditional_format` | 设置条件格式规则 | range, rule, format, sheet? |
+| `wps_excel_protect_workbook` | 保护工作簿结构（防止增删工作表） | password? |
+| `wps_excel_set_zoom` | 设置工作表显示缩放比例 | level, sheet? |
+
+### 数据高级工具（7个）
+
+| MCP工具 | 功能描述 | 关键参数 |
+|---------|---------|----------|
+| `wps_excel_auto_filter` | 设置自动筛选 | range, column?, criteria?, sheet? |
+| `wps_excel_copy_range` | 复制指定范围到目标位置 | source, destination, sheet? |
+| `wps_excel_paste_range` | 粘贴数据到指定位置 | destination, type?, sheet? |
+| `wps_excel_fill_series` | 自动填充序列（等差/等比/日期等） | range, type?, step?, sheet? |
+| `wps_excel_transpose` | 转置指定范围的数据（行列互换） | source, destination, sheet? |
+| `wps_excel_text_to_columns` | 分列（将文本按分隔符拆分为多列） | range, delimiter?, sheet? |
+| `wps_excel_subtotal` | 对指定范围进行分类汇总 | range, groupBy, function?, sheet? |
 
 ### 图表工具（2个）
 
@@ -288,17 +317,13 @@ description: WPS 表格智能助手，通过自然语言操控 Excel，解决公
 
 | 分类 | action列表 |
 |------|-----------|
-| 排序筛选 | autoFilter |
 | 行列操作 | showRows, showColumns |
-| 范围操作 | copyRange, pasteRange, transpose, textToColumns, subtotal |
 | 条件格式 | removeConditionalFormat, getConditionalFormats |
 | 数据验证 | removeDataValidation, getDataValidations |
 | 命名范围 | deleteNamedRange, getNamedRanges |
 | 批注 | deleteCellComment, getCellComments |
-| 保护 | unprotectSheet, protectWorkbook |
+| 保护 | unprotectSheet |
 | 格式辅助 | autoFitColumn, autoFitRow, autoFitAll, unfreezePanes, copyFormat, clearFormats |
-| 工作簿管理 | openWorkbook, getOpenWorkbooks, switchWorkbook, closeWorkbook, createWorkbook |
-| 单元格信息 | getFormula, getCellInfo, clearRange, getContext |
 | 高级功能 | refreshLinks, consolidate, setArrayFormula, calculateSheet, insertExcelImage, setHyperlink, wrapText, groupRows, groupColumns, lockCells |
 
 ### 调用示例
@@ -339,4 +364,4 @@ wps_excel_get_sheet_list()
 
 *Skill by lc2panda - WPS MCP Project*
 
-<!-- 审计记录：2026-03-14 T16 同步工具列表 27→46个MCP工具 -->
+<!-- 审计记录：2026-03-21 T17 同步工具列表 46→65个MCP工具（+工作簿管理10个、+数据高级7个、+protect_workbook/set_zoom） -->

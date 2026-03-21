@@ -64,7 +64,7 @@ description: WPS 文字智能助手，通过自然语言操控 Word 文档，解
 
 ### Step 4: 执行操作
 
-调用相应MCP工具完成操作（共22个已注册工具）：
+调用相应MCP工具完成操作（共24个已注册工具）：
 
 **文档管理：**
 - `wps_word_get_open_documents`：获取打开的文档列表
@@ -86,6 +86,7 @@ description: WPS 文字智能助手，通过自然语言操控 Word 文档，解
 - `wps_word_set_font`：设置字体格式（font_name, font_size, bold, italic, underline, color, range）
 - `wps_word_apply_style`：应用样式（style_name, range）
 - `wps_word_set_paragraph`：设置段落格式（alignment, lineSpacing）
+- `wps_word_set_font_style`：设置字体样式（bold, italic, underline等快捷设置）
 - `wps_word_set_text_color`：设置文字颜色（color）
 - `wps_word_set_line_spacing`：设置行距（lineSpacing, paragraphIndex）
 - `wps_word_generate_toc`：生成目录（position, levels, include_page_numbers）
@@ -94,6 +95,7 @@ description: WPS 文字智能助手，通过自然语言操控 Word 文档，解
 - `wps_word_set_page_setup`：设置页面布局（orientation, marginTop/Bottom/Left/Right）
 - `wps_word_insert_header`：设置页眉（text, section）
 - `wps_word_insert_footer`：设置页脚（text, section）
+- `wps_word_generate_doc_toc`：生成文档目录（基于文档结构自动生成）
 - `wps_word_insert_section_break`：插入分节符（breakType）
 
 ### Step 5: 反馈结果
@@ -254,7 +256,7 @@ description: WPS 文字智能助手，通过自然语言操控 Word 文档，解
 
 ## 可用MCP工具
 
-本Skill通过以下MCP工具与WPS Office交互（共22个已注册工具）：
+本Skill通过以下MCP工具与WPS Office交互（共24个已注册工具）：
 
 ### 文档管理工具（5个）
 
@@ -278,16 +280,18 @@ description: WPS 文字智能助手，通过自然语言操控 Word 文档，解
 | `wps_word_insert_page_break` | 在光标位置插入分页符 | 无参数 |
 | `wps_word_insert_bookmark` | 在光标位置或选中区域插入书签 | `name`（必填） |
 
-### 格式设置工具（6个）
+### 格式设置工具（8个）
 
 | MCP工具名称 | 功能描述 | 关键参数 |
 |------------|---------|---------|
 | `wps_word_set_font` | 设置字体格式 | `font_name`, `font_size`, `bold`, `italic`, `underline`, `color`, `range`("selection"/"all") |
 | `wps_word_apply_style` | 应用样式到选中区域 | `style_name`（必填）, `range`(start/end) |
 | `wps_word_set_paragraph` | 设置段落格式 | `alignment`("left"/"center"/"right"/"justify"), `lineSpacing`(倍数) |
+| `wps_word_set_font_style` | 设置字体样式（快捷设置） | `bold`, `italic`, `underline` 等 |
 | `wps_word_set_text_color` | 设置选中文字颜色 | `color`（必填，如"#FF0000"或"red"） |
 | `wps_word_set_line_spacing` | 设置行距 | `lineSpacing`（必填，如1.5/2.0）, `paragraphIndex`(段落索引) |
 | `wps_word_generate_toc` | 生成文档目录 | `position`("start"/"cursor"), `levels`(默认3), `include_page_numbers` |
+| `wps_word_generate_doc_toc` | 基于文档结构自动生成目录 | 无参数 |
 
 ### 页面布局工具（4个）
 
@@ -385,6 +389,7 @@ wps_word_insert_header({
 - 书签获取（getBookmarks）
 - 批注获取（getComments）
 - 文档统计（getDocumentStats）
+- 字体样式重置（resetFontStyle）
 
 ## 快捷操作提示
 
@@ -401,4 +406,4 @@ wps_word_insert_header({
 
 *Skill by lc2panda - WPS MCP Project*
 
-<!-- 审计记录：2026-03-14 Agent-Skills-Word 完成审计修复 -->
+<!-- 审计记录：2026-03-21 T17 同步工具列表 22→24个MCP工具（+set_font_style、+generate_doc_toc） -->
