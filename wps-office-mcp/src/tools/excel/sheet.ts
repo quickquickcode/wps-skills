@@ -606,7 +606,7 @@ export const deleteRowHandler: ToolHandler = async (
     const response = await wpsClient.executeMethod<{
       deletedRows: number;
     }>(
-      'deleteRow',
+      'deleteRows',
       { row, count },
       WpsAppType.SPREADSHEET
     );
@@ -673,7 +673,7 @@ export const insertColumnHandler: ToolHandler = async (
     const response = await wpsClient.executeMethod<{
       insertedColumns: number;
     }>(
-      'insertColumn',
+      'insertColumns',
       { column, count },
       WpsAppType.SPREADSHEET
     );
@@ -740,7 +740,7 @@ export const deleteColumnHandler: ToolHandler = async (
     const response = await wpsClient.executeMethod<{
       deletedColumns: number;
     }>(
-      'deleteColumn',
+      'deleteColumns',
       { column, count },
       WpsAppType.SPREADSHEET
     );
@@ -885,7 +885,7 @@ export const autoFillHandler: ToolHandler = async (
     const response = await wpsClient.executeMethod<{
       filled: boolean;
     }>(
-      'autoFill',
+      'fillSeries',
       { sourceRange, targetRange },
       WpsAppType.SPREADSHEET
     );
@@ -956,7 +956,7 @@ export const setNamedRangeHandler: ToolHandler = async (
       name: string;
       range: string;
     }>(
-      'setNamedRange',
+      'createNamedRange',
       { name, range },
       WpsAppType.SPREADSHEET
     );
@@ -1033,7 +1033,7 @@ export const hideColumnHandler: ToolHandler = async (
       count: number;
       hidden: boolean;
     }>(
-      'hideColumn',
+      'hideColumns',
       { column, count, hide },
       WpsAppType.SPREADSHEET
     );
@@ -1106,7 +1106,7 @@ export const autoSumHandler: ToolHandler = async (
       targetCell: string;
       result: number;
     }>(
-      'autoSum',
+      'autoSum', // NOTE: macOS未实现，仅Windows支持
       { range, targetCell },
       WpsAppType.SPREADSHEET
     );

@@ -23,7 +23,6 @@ import {
   RegisteredTool,
 } from '../../types/tools';
 import { wpsClient } from '../../client/wps-client';
-import { WpsAppType } from '../../types/wps';
 
 // ============================================================
 // 1. wps_common_save - 保存当前文档

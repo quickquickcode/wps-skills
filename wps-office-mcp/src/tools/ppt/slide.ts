@@ -415,7 +415,7 @@ export const setFontColorHandler: ToolHandler = async (
       success: boolean;
       message: string;
     }>(
-      'setFontColor',
+      'setFontColor', // NOTE: macOS未实现，仅Windows支持
       { slideIndex, shapeIndex, color },
       WpsAppType.PRESENTATION
     );
@@ -504,7 +504,7 @@ export const alignObjectsHandler: ToolHandler = async (
       message: string;
       count?: number;
     }>(
-      'alignObjects',
+      'alignShapes',
       { slideIndex, alignment },
       WpsAppType.PRESENTATION
     );

@@ -734,7 +734,7 @@ export const hideRowHandler: ToolHandler = async (
 
   try {
     const response = await wpsClient.executeMethod(
-      'hideRow',
+      'hideRows',
       { row, count, hide, sheet },
       WpsAppType.SPREADSHEET
     );
@@ -813,7 +813,7 @@ export const setDataValidationHandler: ToolHandler = async (
 
   try {
     const response = await wpsClient.executeMethod(
-      'setDataValidation',
+      'addDataValidation',
       { range, type, formula, sheet },
       WpsAppType.SPREADSHEET
     );

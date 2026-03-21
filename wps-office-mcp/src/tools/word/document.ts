@@ -536,7 +536,7 @@ export const generateDocTocHandler: ToolHandler = async (
       success: boolean;
       message: string;
     }>(
-      'generateToc',
+      'generateTOC',
       { levels },
       WpsAppType.WRITER
     );
@@ -600,7 +600,7 @@ export const insertSectionBreakHandler: ToolHandler = async (
       success: boolean;
       message: string;
     }>(
-      'insertSectionBreak',
+      'insertSectionBreak', // NOTE: macOS未实现，仅Windows支持
       { breakType },
       WpsAppType.WRITER
     );
@@ -680,7 +680,7 @@ export const setLineSpacingHandler: ToolHandler = async (
       success: boolean;
       message: string;
     }>(
-      'setLineSpacing',
+      'setLineSpacing', // NOTE: macOS未实现，仅Windows支持
       params,
       WpsAppType.WRITER
     );

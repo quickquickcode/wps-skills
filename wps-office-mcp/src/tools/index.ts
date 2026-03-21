@@ -20,9 +20,9 @@ import { pptTools } from './ppt';
 import { commonTools } from './common';
 
 /**
- * 所有MCP Tools集合（共133个，另有12个内置工具在mcp-server.ts中注册，全局共145个）
+ * 所有MCP Tools集合（共224个，另有12个内置工具在mcp-server.ts中注册，全局共236个）
  *
- * Excel (65个):
+ * Excel (80个):
  *   公式(6): set_formula, generate_formula, diagnose_formula, set_array_formula, recalculate, auto_sum
  *   数据(12): read_range, write_range, clean_data, remove_duplicates, sort_range, find_replace, insert_row, add_comment, protect_sheet, set_conditional_format, hide_column, protect_workbook
  *   图表(2): create_chart, update_chart
@@ -37,14 +37,15 @@ import { commonTools } from './common';
  *   内容(10): insert_text, find_replace, insert_table, set_paragraph, get_active_document, insert_image, add_comment, insert_hyperlink, get_word_count, insert_page_break
  *   文档管理(9): get_open_documents, switch_document, open_document, get_document_text, insert_header, insert_footer, generate_doc_toc, create_document, save_document
  *
- * PPT (42个):
+ * PPT (111个):
  *   幻灯片(5): add_slide, beautify, unify_font, set_font_color, align_objects
  *   幻灯片操作(22): delete_slide, duplicate_slide, move_slide, get_slide_count, get_slide_info, switch_slide, set_slide_layout, get_slide_notes, set_slide_notes, add_shape, set_shape_style, add_textbox, set_slide_title, insert_image, set_shape_text, set_animation, set_background, set_slide_size, set_transition, add_chart, set_shape_fill, add_speaker_notes
  *   演示文稿管理(8): create_presentation, open_presentation, close_presentation, get_open_presentations, switch_presentation, set_slide_theme, copy_slide, insert_slide_image
  *   文本框(7): delete_textbox, get_textboxes, set_textbox_text, set_textbox_style, get_slide_title, set_slide_subtitle, set_slide_content
  *
- * Common (2个):
+ * Common (9个):
  *   转换(2): convert_to_pdf, convert_format
+ *   （其余7个工具详见 common/ 子模块）
  *
  * 内置工具（12个，在 mcp-server.ts 中注册）:
  *   wps_check_connection, wps_get_active_document, wps_insert_text, wps_get_active_workbook,

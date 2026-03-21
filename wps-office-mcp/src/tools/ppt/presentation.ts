@@ -433,7 +433,7 @@ export const setSlideThemeHandler: ToolHandler = async (
       success: boolean;
       message: string;
     }>(
-      'setSlideTheme',
+      'setSlideTheme', // NOTE: macOS未实现，仅Windows支持
       { theme },
       WpsAppType.PRESENTATION
     );
@@ -505,7 +505,7 @@ export const copySlideHandler: ToolHandler = async (
       message: string;
       newIndex: number;
     }>(
-      'copySlide',
+      'duplicateSlide',
       { slideIndex, targetIndex },
       WpsAppType.PRESENTATION
     );

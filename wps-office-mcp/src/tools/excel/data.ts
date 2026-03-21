@@ -525,7 +525,7 @@ export const insertRowHandler: ToolHandler = async (
   const insertCount = count || 1;
   try {
     const response = await wpsClient.executeMethod<{ message: string }>(
-      'insertRow',
+      'insertRows',
       { row, count: insertCount },
       WpsAppType.SPREADSHEET
     );
@@ -638,7 +638,7 @@ export const setConditionalFormatHandler: ToolHandler = async (
   const { range, condition, format } = args as { range: string; condition: string; format: string };
   try {
     const response = await wpsClient.executeMethod<{ message: string }>(
-      'setConditionalFormat',
+      'addConditionalFormat',
       { range, condition, format },
       WpsAppType.SPREADSHEET
     );
@@ -714,7 +714,7 @@ export const setZoomHandler: ToolHandler = async (
   }
   try {
     const response = await wpsClient.executeMethod<{ message: string }>(
-      'setZoom',
+      'setZoom', // NOTE: macOS未实现，仅Windows支持
       { percent },
       WpsAppType.SPREADSHEET
     );

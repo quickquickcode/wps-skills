@@ -1403,7 +1403,7 @@ export const setAnimationHandler: ToolHandler = async (
       success: boolean;
       message: string;
     }>(
-      'setAnimation',
+      'addAnimation',
       { slideIndex, shapeIndex, animationType },
       WpsAppType.PRESENTATION
     );
@@ -1490,7 +1490,7 @@ export const setBackgroundHandler: ToolHandler = async (
       success: boolean;
       message: string;
     }>(
-      'setBackground',
+      'setSlideBackground',
       { slideIndex, color, imagePath },
       WpsAppType.PRESENTATION
     );
@@ -1578,7 +1578,7 @@ export const setSlideSizeHandler: ToolHandler = async (
       success: boolean;
       message: string;
     }>(
-      'setSlideSize',
+      'setSlideSize', // NOTE: macOS未实现，仅Windows支持
       { width, height },
       WpsAppType.PRESENTATION
     );
@@ -1665,7 +1665,7 @@ export const setTransitionHandler: ToolHandler = async (
       success: boolean;
       message: string;
     }>(
-      'setTransition',
+      'setSlideTransition',
       { slideIndex, transition },
       WpsAppType.PRESENTATION
     );
@@ -1768,7 +1768,7 @@ export const addChartHandler: ToolHandler = async (
       message: string;
       chartId?: string;
     }>(
-      'addChart',
+      'insertPptChart',
       { slideIndex, chartType, data },
       WpsAppType.PRESENTATION
     );
@@ -1847,7 +1847,7 @@ export const setShapeFillHandler: ToolHandler = async (
       message: string;
       name?: string;
     }>(
-      'setShapeFill',
+      'setShapeFill', // NOTE: macOS未实现，仅Windows支持
       { slideIndex, shapeIndex, color },
       WpsAppType.PRESENTATION
     );
@@ -1918,7 +1918,7 @@ export const addSpeakerNotesHandler: ToolHandler = async (
       success: boolean;
       message: string;
     }>(
-      'addSpeakerNotes',
+      'setSlideNotes',
       { slideIndex, notes },
       WpsAppType.PRESENTATION
     );

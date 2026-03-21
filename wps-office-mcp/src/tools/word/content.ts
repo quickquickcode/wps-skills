@@ -607,7 +607,7 @@ export const insertCommentHandler: ToolHandler = async (
   }
   try {
     const response = await wpsClient.executeMethod<{ success: boolean; message: string }>(
-      'insertComment',
+      'addComment',
       { text },
       WpsAppType.WRITER
     );
@@ -646,7 +646,7 @@ export const setTextColorHandler: ToolHandler = async (
   }
   try {
     const response = await wpsClient.executeMethod<{ success: boolean; message: string }>(
-      'setTextColor',
+      'setTextColor', // NOTE: macOS未实现，仅Windows支持
       { color },
       WpsAppType.WRITER
     );
