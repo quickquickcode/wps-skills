@@ -338,7 +338,7 @@ export const evaluateFormulaHandler = async (args: Record<string, unknown>) => {
   const response = await wpsClient.executeMethod<{ success: boolean; result: unknown }>(
     'evaluateFormula', args, WpsAppType.SPREADSHEET // NOTE: macOS未实现，仅Windows支持
   );
-  const { v4: uuidv4 } = require('uuid');
+
   return { id: uuidv4(), success: response.success, content: [{ type: "text" as const, text: JSON.stringify(response.data) }] };
 };
 
@@ -357,7 +357,7 @@ export const setPrintAreaHandler = async (args: Record<string, unknown>) => {
   const response = await wpsClient.executeMethod<{ success: boolean }>(
     'setPrintArea', args, WpsAppType.SPREADSHEET
   );
-  const { v4: uuidv4 } = require('uuid');
+
   return { id: uuidv4(), success: response.success, content: [{ type: "text" as const, text: response.success ? "打印区域已设置" : "设置失败" }] };
 };
 
@@ -376,7 +376,7 @@ export const zoomHandler = async (args: Record<string, unknown>) => {
   const response = await wpsClient.executeMethod<{ success: boolean }>(
     'setZoom', args, WpsAppType.SPREADSHEET // NOTE: macOS未实现，仅Windows支持
   );
-  const { v4: uuidv4 } = require('uuid');
+
   return { id: uuidv4(), success: response.success, content: [{ type: "text" as const, text: response.success ? "缩放已设置" : "设置失败" }] };
 };
 
