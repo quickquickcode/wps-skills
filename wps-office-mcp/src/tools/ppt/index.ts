@@ -109,4 +109,21 @@ export {
   insertSlideImageHandler,
 } from './presentation';
 
+export {
+  deleteTextboxDefinition,
+  deleteTextboxHandler,
+  getTextboxesDefinition,
+  getTextboxesHandler,
+  setTextboxTextDefinition,
+  setTextboxTextHandler,
+  setTextboxStyleDefinition,
+  setTextboxStyleHandler,
+  getSlideTitleDefinition,
+  getSlideTitleHandler,
+  setSlideSubtitleDefinition,
+  setSlideSubtitleHandler,
+  setSlideContentDefinition,
+  setSlideContentHandler,
+} from './textbox';
+
 export default pptTools;

@@ -15,6 +15,7 @@
  * - wps_word_get_active_document: 获取当前文档信息
  * - wps_word_insert_page_break: 插入分页符
  * - wps_word_insert_comment: 插入批注
+ * - wps_word_set_font_style: 设置选中文字的字体样式属性
  * - wps_word_set_text_color: 设置文字颜色
  */
 
@@ -546,9 +547,9 @@ export const insertPageBreakHandler: ToolHandler = async (
   }
 };
 
-export const setFontDefinition: ToolDefinition = {
-  name: 'wps_word_set_font',
-  description: '设置选中文字的字体属性',
+export const setFontStyleDefinition: ToolDefinition = {
+  name: 'wps_word_set_font_style',
+  description: '设置选中文字的字体样式属性',
   category: ToolCategory.DOCUMENT,
   inputSchema: {
     type: 'object',
@@ -562,7 +563,7 @@ export const setFontDefinition: ToolDefinition = {
   },
 };
 
-export const setFontHandler: ToolHandler = async (
+export const setFontStyleHandler: ToolHandler = async (
   args: Record<string, unknown>
 ): Promise<ToolCallResult> => {
   try {
@@ -667,7 +668,7 @@ export const contentTools: RegisteredTool[] = [
   { definition: getActiveDocumentDefinition, handler: getActiveDocumentHandler },
   { definition: insertImageDefinition, handler: insertImageHandler },
   { definition: insertPageBreakDefinition, handler: insertPageBreakHandler },
-  { definition: setFontDefinition, handler: setFontHandler },
+  { definition: setFontStyleDefinition, handler: setFontStyleHandler },
   { definition: insertCommentDefinition, handler: insertCommentHandler },
   { definition: setTextColorDefinition, handler: setTextColorHandler },
 ];

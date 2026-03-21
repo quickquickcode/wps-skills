@@ -12,7 +12,7 @@
  * - wps_word_get_document_text: 获取文档文本内容
  * - wps_word_insert_header: 设置页眉内容
  * - wps_word_insert_footer: 设置页脚内容
- * - wps_word_generate_toc: 自动生成文档目录
+ * - wps_word_generate_doc_toc: 自动生成文档目录
  * - wps_word_insert_section_break: 插入分节符
  * - wps_word_set_line_spacing: 设置行距
  */
@@ -504,7 +504,7 @@ export const insertFooterHandler: ToolHandler = async (
  * 自动生成文档目录
  */
 export const generateDocTocDefinition: ToolDefinition = {
-  name: 'wps_word_generate_toc',
+  name: 'wps_word_generate_doc_toc',
   description: `自动生成文档目录。根据文档中的标题样式自动生成目录。
 
 前提条件：文档中的标题必须使用"标题1"、"标题2"等样式。

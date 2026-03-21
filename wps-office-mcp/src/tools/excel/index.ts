@@ -144,4 +144,44 @@ export {
   setRowHeightHandler,
 } from './format';
 
+export {
+  openWorkbookDefinition,
+  openWorkbookHandler,
+  getOpenWorkbooksDefinition,
+  getOpenWorkbooksHandler,
+  switchWorkbookDefinition,
+  switchWorkbookHandler,
+  closeWorkbookDefinition,
+  closeWorkbookHandler,
+  createWorkbookDefinition,
+  createWorkbookHandler,
+  getCellValueDefinition,
+  getCellValueHandler,
+  setCellValueDefinition,
+  setCellValueHandler,
+  getFormulaDefinition,
+  getFormulaHandler,
+  getCellInfoDefinition,
+  getCellInfoHandler,
+  clearRangeDefinition,
+  clearRangeHandler,
+} from './workbook';
+
+export {
+  autoFilterDefinition,
+  autoFilterHandler,
+  copyRangeDefinition,
+  copyRangeHandler,
+  pasteRangeDefinition,
+  pasteRangeHandler,
+  fillSeriesDefinition,
+  fillSeriesHandler,
+  transposeDefinition,
+  transposeHandler,
+  textToColumnsDefinition,
+  textToColumnsHandler,
+  subtotalDefinition,
+  subtotalHandler,
+} from './data-advanced';
+
 export default excelTools;

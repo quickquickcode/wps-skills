@@ -15,8 +15,8 @@ import { documentTools } from './document';
  * 所有Word相关的Tools
  * 包含：
  * - 格式化Tools: apply_style, set_font, generate_toc, insert_bookmark, set_page_setup
- * - 内容Tools: insert_text, find_replace, insert_table, set_paragraph, get_active_document, insert_image
- * - 文档管理Tools: get_open_documents, switch_document, open_document, get_document_text, insert_header, insert_footer, generate_toc(doc)
+ * - 内容Tools: insert_text, find_replace, insert_table, set_paragraph, get_active_document, insert_image, set_font_style
+ * - 文档管理Tools: get_open_documents, switch_document, open_document, get_document_text, insert_header, insert_footer, generate_doc_toc
  */
 export const wordTools: RegisteredTool[] = [
   ...formatTools,
